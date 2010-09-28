@@ -24,6 +24,11 @@ function views_glossary_title_views_handlers() {
       'views_handler_argument_title_filter' => array(
         'parent' => 'views_handler_argument_string',
       ),
+/*
+      'views_handler_sort_title_filter' => array(
+        'parent' => 'views_handler_sort',
+      ),
+*/
     ),
   );
 }
@@ -32,12 +37,12 @@ function views_glossary_title_views_handlers() {
  * Implementation of hook_views_data_alter().
  */
 function views_glossary_title_views_data_alter(&$data) {
-  $data['node']['title_alphabet'] = $data['node']['title'];
-  $data['node']['title_alphabet']['real field'] = 'title';
-  $data['node']['title_alphabet']['title'] = t('Node Title passed through filtering.');
-  $data['node']['title_alphabet']['help'] = t('Field !field', array('!field' => 'Node Title'));
-  $data['node']['title_alphabet']['field']['handler'] = 'views_handler_field_title_filter';
-  $data['node']['title_alphabet']['argument']['handler'] = 'views_handler_argument_title_filter';
-  $data['node']['title_alphabet']['field']['group'] = 'Views Alphabet Summary';
+  $data['node']['title_glossary'] = $data['node']['title'];
+  $data['node']['title_glossary']['real field'] = 'title';
+  $data['node']['title_glossary']['title'] = t('Node Title passed through filtering.');
+  $data['node']['title_glossary']['help'] = t('Field !field', array('!field' => 'Node Title'));
+  $data['node']['title_glossary']['field']['handler'] = 'views_handler_field_title_filter';
+  $data['node']['title_glossary']['argument']['handler'] = 'views_handler_argument_title_filter';
+  $data['node']['title_glossary']['field']['group'] = 'Views Glossary ABC';
   return $data;
 }

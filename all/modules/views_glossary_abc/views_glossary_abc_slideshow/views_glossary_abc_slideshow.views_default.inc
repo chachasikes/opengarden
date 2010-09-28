@@ -10,11 +10,11 @@
 /**
  * Implementation of hook_views_default_views().
  */
-function views_glossary_images_views_default_views() {
+function views_glossary_abc_slideshow_views_default_views() {
   // --- Paste default view here:
   $view = new view;
-  $view->name = 'glossary_images';
-  $view->description = 'A list of all content, by themed letter.';
+  $view->name = 'glossary_title_slideshow';
+  $view->description = 'A list of all content, filtered by letter, with interactive slideshow.';
   $view->tag = 'default';
   $view->view_php = '';
   $view->base_table = 'node';
@@ -123,7 +123,6 @@ function views_glossary_images_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
-  $handler->override_option('title', 'A is for All');
   $handler->override_option('use_ajax', '1');
   $handler->override_option('items_per_page', 0);
   $handler->override_option('use_pager', '1');
@@ -144,6 +143,7 @@ function views_glossary_images_views_default_views() {
     ),
     'default' => '-1',
   ));
+  $handler->override_option('row_plugin', 'node');
   $handler = $view->new_display('page', 'Page', 'page');
   $handler->override_option('arguments', array(
     'title_glossary' => array(
@@ -202,7 +202,49 @@ function views_glossary_images_views_default_views() {
       'validate_argument_php' => '',
     ),
   ));
-  $handler->override_option('path', 'abc-pix');
+  $handler->override_option('style_plugin', 'slideshow');
+  $handler->override_option('style_options', array(
+    'type' => 'ul',
+    'mode' => 'views_slideshow_singleframe',
+    'views_slideshow_singleframe-prefix' => '',
+    'views_slideshow_singleframe' => array(
+      'timeout' => '5000',
+      'delay' => '0',
+      'speed' => '700',
+      'start_paused' => 1,
+      'fixed_height' => '1',
+      'random' => '0',
+      'pause' => '1',
+      'pause_on_click' => '1',
+      'pause_when_hidden' => 0,
+      'pause_when_hidden_type' => 'full',
+      'amount_allowed_visible' => '',
+      'remember_slide' => 0,
+      'remember_slide_days' => '1',
+      'controls' => '2',
+      'pager' => '2',
+      'pager_type' => 'Numbered',
+      'pager_hover' => '2',
+      'pager_click_to_page' => 0,
+      'image_count' => '0',
+      'items_per_slide' => '1',
+      'effect' => 'fade',
+      'sync' => '1',
+      'nowrap' => '0',
+      'advanced' => '',
+      'ie' => array(
+        'cleartype' => 'true',
+        'cleartypenobg' => 'false',
+      ),
+    ),
+  ));
+  $handler->override_option('row_options', array(
+    'relationship' => 'none',
+    'build_mode' => 'full',
+    'links' => 0,
+    'comments' => 0,
+  ));
+  $handler->override_option('path', 'abc-slides');
   $handler->override_option('menu', array(
     'type' => 'normal',
     'title' => 'Glossary',
@@ -257,13 +299,13 @@ function views_glossary_images_views_default_views() {
   $handler->override_option('arguments', array(
     'title_glossary' => array(
       'default_action' => 'summary asc',
-      'style_plugin' => 'alphabet_icons_summary',
+      'style_plugin' => 'unformatted_summary',
       'style_options' => array(
         'count' => 0,
         'override' => 0,
         'items_per_page' => '25',
         'inline' => 1,
-        'separator' => '',
+        'separator' => '|',
       ),
       'wildcard' => 'all',
       'wildcard_substitution' => 'All',
@@ -309,7 +351,7 @@ function views_glossary_images_views_default_views() {
       'validate_argument_php' => '',
     ),
   ));
-  $handler->override_option('header', '<a href="/abc">See all</a>');
+  $handler->override_option('header', '<a href="/abc-slides">See all</a>');
   $handler->override_option('header_format', '1');
   $handler->override_option('header_empty', 1);
   $handler->override_option('attachment_position', 'before');
@@ -317,6 +359,65 @@ function views_glossary_images_views_default_views() {
   $handler->override_option('inherit_exposed_filters', FALSE);
   $handler->override_option('inherit_pager', 0);
   $handler->override_option('render_pager', TRUE);
+  $handler->override_option('displays', array(
+    'default' => 'default',
+    'page' => 'page',
+  ));
+  $handler = $view->new_display('attachment', 'Attachment', 'attachment_1');
+  $handler->override_option('arguments', array(
+    'title_glossary' => array(
+      'default_action' => 'default',
+      'style_plugin' => 'default_summary',
+      'style_options' => array(),
+      'wildcard' => 'all',
+      'wildcard_substitution' => 'All',
+      'title' => '',
+      'breadcrumb' => '',
+      'default_argument_type' => 'fixed',
+      'default_argument' => '',
+      'validate_type' => 'none',
+      'validate_fail' => 'not found',
+      'glossary' => 1,
+      'limit' => '1',
+      'case' => 'none',
+      'path_case' => 'none',
+      'transform_dash' => 0,
+      'filter_punctuation' => ', . * "',
+      'filter_numeric' => 0,
+      'id' => 'title_glossary',
+      'table' => 'node',
+      'field' => 'title_glossary',
+      'validate_user_argument_type' => 'uid',
+      'validate_user_roles' => array(
+        '2' => 0,
+      ),
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+      'default_options_div_prefix' => '',
+      'default_argument_fixed' => 'a',
+      'default_argument_user' => 0,
+      'default_argument_php' => '',
+      'validate_argument_node_type' => array(
+        'item' => 0,
+        'page' => 0,
+        'story' => 0,
+      ),
+      'validate_argument_node_access' => 0,
+      'validate_argument_nid_type' => 'nid',
+      'validate_argument_vocabulary' => array(),
+      'validate_argument_type' => 'tid',
+      'validate_argument_transform' => 0,
+      'validate_user_restrict_roles' => 0,
+      'validate_argument_php' => '',
+    ),
+  ));
+  $handler->override_option('attachment_position', 'after');
+  $handler->override_option('inherit_arguments', TRUE);
+  $handler->override_option('inherit_exposed_filters', FALSE);
+  $handler->override_option('inherit_pager', FALSE);
+  $handler->override_option('render_pager', 0);
   $handler->override_option('displays', array(
     'default' => 'default',
     'page' => 'page',

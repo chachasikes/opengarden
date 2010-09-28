@@ -10,11 +10,11 @@
 /**
  * Implementation of hook_views_default_views().
  */
-function views_glossary_images_views_default_views() {
+function views_glossary_title_views_default_views() {
   // --- Paste default view here:
   $view = new view;
-  $view->name = 'glossary_images';
-  $view->description = 'A list of all content, by themed letter.';
+  $view->name = 'glossary_title';
+  $view->description = 'A list of all content, by filtered letter.';
   $view->tag = 'default';
   $view->view_php = '';
   $view->base_table = 'node';
@@ -202,7 +202,7 @@ function views_glossary_images_views_default_views() {
       'validate_argument_php' => '',
     ),
   ));
-  $handler->override_option('path', 'abc-pix');
+  $handler->override_option('path', 'abc');
   $handler->override_option('menu', array(
     'type' => 'normal',
     'title' => 'Glossary',
@@ -257,13 +257,13 @@ function views_glossary_images_views_default_views() {
   $handler->override_option('arguments', array(
     'title_glossary' => array(
       'default_action' => 'summary asc',
-      'style_plugin' => 'alphabet_icons_summary',
+      'style_plugin' => 'unformatted_summary',
       'style_options' => array(
         'count' => 0,
         'override' => 0,
         'items_per_page' => '25',
         'inline' => 1,
-        'separator' => '',
+        'separator' => '|',
       ),
       'wildcard' => 'all',
       'wildcard_substitution' => 'All',
