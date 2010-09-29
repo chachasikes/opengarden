@@ -1,0 +1,3 @@
+<?php
+
+include_once('alphabet_presentation_cck.features.inc');

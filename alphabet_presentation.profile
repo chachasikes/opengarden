@@ -23,26 +23,12 @@ function alphabet_presentation_profile_modules() {
   $modules = array(
     'features',
     'alphabet_presentation',
+    'alphabet_presentation_cck',
   );
   return $modules;
 }
 
-function alphabet_presentation_profile_final() {
-  //  db_query("INSERT INTO {blocks} VALUES ('block', '1', 1, 0, 1, 0, 0, 1, 'my*', '')");
 
-  // Enable default theme.
-  drupal_system_enable('theme', 'sitetheme');
-  variable_set('theme_default', 'sitetheme');
-
-  // Default theme settings.
-  variable_set('theme_sitetheme_settings', array(
-    'default_logo' => 0,
-    'toggle_name' => 1,
-    'toggle_slogan' => 0,
-    'toggle_mission' => 1,
-  ));
-
-}
 
 /**
  * Implementation of hook_profile_task_list().
@@ -57,6 +43,10 @@ function alphabet_presentation_profile_task_list() {
  * Implementation of hook_profile_tasks().
  */
 function alphabet_presentation_profile_tasks(&$task, $url) {
+  //  db_query("INSERT INTO {blocks} VALUES ('block', '1', 1, 0, 1, 0, 0, 1, 'my*', '')");
+
+
+
   global $install_locale;
   $output = '';
   drupal_set_message(t("Installing Alphabet Presentation feature"));
@@ -64,5 +54,22 @@ function alphabet_presentation_profile_tasks(&$task, $url) {
   drupal_flush_all_caches();
   module_rebuild_cache();
   menu_rebuild();
+  variable_set('site_frontpage', 'abd-slides');
+  drupal_flush_all_caches();
+
+  // Enable default theme.
+/*   drupal_system_enable('theme', 'sitetheme'); */
+  variable_set('theme_default', 'sitetheme');
+
+
+
+  // Default theme settings.
+  variable_set('theme_sitetheme_settings', array(
+    'default_logo' => 0,
+    'toggle_name' => 1,
+    'toggle_slogan' => 0,
+    'toggle_mission' => 1,
+  ));
+
   return $output;
 }

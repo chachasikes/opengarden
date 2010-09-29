@@ -42,27 +42,8 @@ function alphabet_presentation_menu_default_menu_links() {
     'expanded' => '0',
     'weight' => '-50',
   );
-  // Exported menu link: menu-creator:node/add/item
-  $menu_links['menu-creator:node/add/item'] = array(
-    'menu_name' => 'menu-creator',
-    'link_path' => 'node/add/item',
-    'router_path' => 'node/add/item',
-    'link_title' => 'Add Item',
-    'options' => array(
-      'attributes' => array(
-        'title' => '',
-      ),
-    ),
-    'module' => 'menu',
-    'hidden' => '0',
-    'external' => '0',
-    'has_children' => '0',
-    'expanded' => '0',
-    'weight' => '-48',
-  );
   // Translatables
   // Included for use with string extractors like potx.
-  t('Add Item');
   t('All Items');
   t('All Items (presentation)');
 

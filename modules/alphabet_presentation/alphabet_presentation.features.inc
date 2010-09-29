@@ -78,3 +78,12 @@ function alphabet_presentation_node_info() {
   );
   return $items;
 }
+
+/**
+ * Implementation of hook_views_api().
+ */
+function alphabet_presentation_views_api() {
+  return array(
+    'api' => '2',
+  );
+}
