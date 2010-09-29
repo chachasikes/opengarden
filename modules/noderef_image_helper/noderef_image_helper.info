@@ -1,0 +1,16 @@
+; $Id: noderef_image_helper.info,v 1.1.2.2 2009/10/13 20:06:37 roetzi Exp $
+name = Noderef Image Helper
+description = Helper module to use nodereference fields which points to images.
+dependencies[] = content
+dependencies[] = nodereference
+dependencies[] = imagefield
+dependencies[] = imagecache
+version = VERSION
+core = 6.x
+
+; Information added by drupal.org packaging script on 2010-07-11
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "noderef_image_helper"
+datestamp = "1278835037"
+

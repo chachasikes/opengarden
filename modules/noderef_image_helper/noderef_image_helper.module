@@ -1,0 +1,677 @@
+<?php
+// $Id: noderef_image_helper.module,v 1.1.2.1 2009/09/13 19:57:09 roetzi Exp $
+
+/**
+ * @file
+ * TODO: description
+ */
+
+// ------------------------------------------------------------------
+// Views
+// ------------------------------------------------------------------
+
+/**
+ * Implementation of hook_views_api().
+ */
+function noderef_image_helper_views_api() {
+  return array('api' => 2.0);
+}
+
+/**
+ * Implementation of hook_views_plugins().
+ */
+function noderef_image_helper_views_plugins() {
+  return array(
+    'row' => array(
+      'noderef_image' => array(
+        'title' => t('Noderef image'),
+        'help' => t('...'),
+        'handler' => 'views_plugin_row_noderef_image',
+        'base' => array('node'),
+        'type' => 'normal',
+      ),
+    ),
+  );
+}
+
+
+// ------------------------------------------------------------------
+// Permissions
+// ------------------------------------------------------------------
+
+/**
+ * Implementation of hook_perm().
+ */
+function noderef_image_helper_perm() {
+  return array('upload images directly', 'browse existing images');
+}
+
+
+// ------------------------------------------------------------------
+// Menu
+// ------------------------------------------------------------------
+
+/**
+ * Implementation of hook_menu().
+ */
+function noderef_image_helper_menu() {
+  $items = array();
+
+  $items['noderef_image_helper/upload'] = array(
+    'title' => 'Upload image',
+    'page callback' => 'noderef_image_helper_upload',
+    'access arguments' => array('upload images directly'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['noderef_image_helper/browse'] = array(
+    'title' => 'Browse image',
+    'page callback' => 'noderef_image_helper_browse',
+    'access arguments' => array('browse existing images'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['noderef_image_helper/insert'] = array(
+    'title' => 'Insert image',
+    'page callback' => 'noderef_image_helper_insert',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['noderef_image_helper/preview'] = array(
+    'title' => 'Preview image',
+    'page callback' => 'noderef_image_helper_preview',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/settings/noderef_image_helper'] = array(
+    'title' => 'Nodereference Image Helper',
+    'description' => 'Configure nodereference image helper.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('noderef_image_helper_settings_form'),
+    'access arguments' => array('administer site configuration'),
+  );
+
+  return $items;
+}
+
+
+// ------------------------------------------------------------------
+// Administration
+// ------------------------------------------------------------------
+
+/**
+ * Settings form.
+ */
+function noderef_image_helper_settings_form() {
+  $types = node_get_types('names');
+  $form['noderef_image_helper_image_node_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Image node type'),
+    '#default_value' => noderef_image_helper_image_node_type(),
+    '#options' => $types,
+    '#description' => t('Select the node type which is used for images.'),
+  );
+  $options = array();
+  foreach(content_fields() as $field) {
+    if ($field['type'] == 'filefield') {
+      $options[$field['field_name']] = $field['field_name'] . ' - ' . $types[$field['type_name']];
+    }
+  }
+  $form['noderef_image_helper_image_field_name'] = array(
+    '#type' => 'select',
+    '#title' => t('Image fieldname'),
+    '#default_value' => noderef_image_helper_image_field_name(),
+    '#options' => $options,
+    '#description' => t('Select cck field used for images. Only fields of type <em>filefield</em> are shown.'),
+  );
+  $options = array();
+  foreach(imagecache_presets() as $preset) {
+    $options[$preset['presetname']] = $preset['presetname'];
+  }
+  $form['noderef_image_helper_preview_preset'] = array(
+    '#type' => 'select',
+    '#title' => t('Image preview preset'),
+    '#default_value' => noderef_image_helper_preview_preset(),
+    '#options' => $options,
+    '#description' => t('Select the imagecache preset used for image previews.'),
+  );
+  $options = array();
+  $options[''] = t('< built-in >');
+  foreach (views_get_all_views() as $view) {
+    if ($view->display['default']->display_options['row_plugin'] == 'noderef_image') {
+      $options[$view->name] = $view->name;
+    }
+  }
+  $form['noderef_image_helper_browsing_view'] = array(
+    '#type' => 'select',
+    '#title' => t('Browsing view'),
+    '#default_value' => noderef_image_helper_browsing_view(),
+    '#options' => $options,
+    '#description' => t('Select the view which is used to browse the images. Only views which use the row style <em>Noderef image</em> can be selected.'),
+  );
+  
+  return system_settings_form($form);
+}
+
+
+// ------------------------------------------------------------------
+// Popups
+// ------------------------------------------------------------------
+
+/**
+ * Menu callback for upload popup.
+ */
+function noderef_image_helper_upload($id) {
+  global $user;
+  module_load_include('inc', 'node', 'node.pages');
+  
+  if (node_access('create', noderef_image_helper_image_node_type(), $user)) {
+    $node = array(
+      'uid' => $user->uid,
+      'name' => $user->name,
+      'type' => noderef_image_helper_image_node_type()
+    );
+    $content = '<h1>' . t('Create Image') . '</h1>';
+    $content .= drupal_get_form($node['type'] .'_node_form', $node);
+    echo theme('noderef_image_helper_popup', $content);
+  }
+  else {
+    drupal_access_denied();
+  }
+  exit;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function noderef_image_helper_form_alter(&$form, &$form_state, $form_id) {
+  $node_type = noderef_image_helper_image_node_type();
+  if ($form_id == $node_type . '_node_form' && arg(0) == 'noderef_image_helper') {
+    $form['buttons']['submit']['#submit'] = array('noderef_image_helper_node_form_submit');
+  }
+}
+
+/**
+ * Submit callback for image_node_form.
+ */
+function noderef_image_helper_node_form_submit($form, &$form_state) {
+  // Execute regular node submit handler.
+  node_form_submit($form, $form_state);
+
+  if ($form_state['nid']) {
+    $id = arg(2);
+    $form_state['redirect'] = 'noderef_image_helper/insert/' . $id . '/' . $form_state['nid'];
+  }
+}
+
+/**
+ * Menu callback for browse popup.
+ */
+function noderef_image_helper_browse() {
+  $content = '<h1>' . t('Browse Images') . '</h1>';
+  $view_name = noderef_image_helper_browsing_view();
+  if ($view_name) {
+    $view = views_get_view($view_name);
+  }
+  else {
+    $view = noderef_image_helper_view();
+  }
+  $view->override_path = 'noderef_image_helper/browse/' . arg(2);
+  $content .= $view->preview('default');
+  echo theme('noderef_image_helper_popup', $content);
+  exit;
+}
+
+/**
+ * Menu callback for image insertion.
+ */
+function noderef_image_helper_insert() {
+  drupal_add_js(drupal_get_path('module', 'noderef_image_helper') . '/noderef_image_helper.insert.js');
+  $content = 'This window should close automatically.';
+  echo theme('noderef_image_helper_popup', $content);
+  exit;
+}
+
+/**
+ * Menu callback for preview ahah result.
+ */
+function noderef_image_helper_preview() {
+  $nid = arg(2);
+  echo l(theme('noderef_image_helper', $nid, noderef_image_helper_preview_preset()), 'node/' . $nid, array('html' => TRUE));
+  exit;
+}
+
+
+// ------------------------------------------------------------------
+// CCK Widget
+// ------------------------------------------------------------------
+
+/**
+ * Implementation of hook_widget_info().
+ */
+function noderef_image_helper_widget_info() {
+  return array(
+    'noderef_image_helper_autocomplete' => array(
+      'label' => t('Autocomplete text field + Upload button + Browse button'),
+      'field types' => array('nodereference'),
+      'multiple values' => CONTENT_HANDLE_MODULE,
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_widget_settings().
+ */
+function noderef_image_helper_widget_settings($op, $widget) {
+}
+
+/**
+ * Implementation of hook_widget().
+ */
+function noderef_image_helper_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#type' => 'noderef_image_helper_element',
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : NULL,
+    '#value_callback' => 'nodereference_autocomplete_value',
+  );
+  return $element;
+}
+
+/**
+ * Implementation of FAPI hook_elements().
+ */
+function noderef_image_helper_elements() {
+  return array(
+    'noderef_image_helper_element' => array(
+      '#input' => TRUE,
+      '#columns' => array('name'), '#delta' => 0,
+      '#process' => array('noderef_image_helper_element_process'),
+      '#autocomplete_path' => FALSE,
+      ),
+    );
+}
+
+/**
+ * Process a single element.
+ */
+function noderef_image_helper_element_process($element, $edit, $form_state, $form) {
+  static $_added = FALSE;
+  if (!$_added) {
+    drupal_add_css(drupal_get_path('module', 'noderef_image_helper') . '/noderef_image_helper.css');
+    drupal_add_js(drupal_get_path('module', 'noderef_image_helper') . '/noderef_image_helper.js');
+    drupal_add_js(
+      array(
+        'noderef_image_helper' => array(
+          'upload_url' => url('noderef_image_helper/upload', array('absolute' => true)),
+          'browse_url' => url('noderef_image_helper/browse', array('absolute' => true)),
+          'preview_url' => url('noderef_image_helper/preview', array('absolute' => true)),
+          'can_upload' => user_access('upload images directly'),
+          'can_browse' => user_access('browse existing images'),
+        ),
+      ),
+     'setting');
+    $_added = TRUE;
+  }
+    
+  $field_key  = $element['#columns'][0];
+  $element['_preview'] = array(
+    '#value' => '<div id="' . $element['#id'] . '-nid-nid-preview" class="noderef-image-helper-preview"></div>',
+  );
+  $element[$field_key] = array(
+    '#type' => 'text_textfield',
+    '#default_value' => isset($element['#value']) ? $element['#value'] : '',
+    '#autocomplete_path' => 'nodereference/autocomplete/'. $element['#field_name'],
+    // The following values were set by the content module and need
+    // to be passed down to the nested element.
+    '#title' => $element['#title'], //t('Select existing image'),
+    '#required' => $element['#required'],
+    '#description' => $element['#description'],
+    '#field_name' => $element['#field_name'],
+    '#type_name' => $element['#type_name'],
+    '#delta' => $element['#delta'],
+    '#columns' => $element['#columns'],
+    '#pre_render' => array('noderef_image_helper_add_class'),
+  );
+
+  if (empty($element[$field_key]['#element_validate'])) {
+    $element[$field_key]['#element_validate'] = array();
+  }
+  array_unshift($element[$field_key]['#element_validate'], 'nodereference_autocomplete_validate');
+
+  // Used so that hook_field('validate') knows where to flag an error.
+  $element['_error_element'] = array(
+    '#type' => 'value',
+    // Wrapping the element around a text_textfield element creates a
+    // nested element, so the final id will look like 'field-name-0-nid-nid'.
+    '#value' => implode('][', array_merge($element['#parents'], array($field_key, $field_key))),
+  );
+  
+  $element['_closing'] = array(
+    '#value' => '<div class="clear"></div>',
+  );
+  
+  return $element;
+}
+
+function noderef_image_helper_add_class($form_element) {
+  $form_element['nid']['#attributes']['class'] .= ' noderef_image_helper_field';
+  return $form_element;
+}
+
+// ------------------------------------------------------------------
+// CCK Formatter
+// ------------------------------------------------------------------
+
+/**
+ * Implementation of hook_field_formatter_info().
+ */
+function noderef_image_helper_field_formatter_info() {
+  $formatters = array();
+  $imagecache = $lightbox = $slideshow = array();
+  $presets = imagecache_presets();
+
+  foreach($presets as $preset_id => $preset) {
+  	$name = $preset['presetname'];
+  	$imagecache['imagecache__' . $name] = array(
+      'label' => 'Imagecache: ' . $name,
+      'field types' => array('nodereference'),
+  	);
+    $imagecache['imagecache_link_node__' . $name] = array(
+      'label' => 'Imagecache: ' . $name . ' (link to node)',
+      'field types' => array('nodereference'),
+    );
+    $imagecache['imagecache_link_image__' . $name] = array(
+      'label' => 'Imagecache: ' . $name . ' (link to image node)',
+      'field types' => array('nodereference'),
+    );
+    if (module_exists('lightbox2')) {
+      $lightbox['lightbox2__' . $name . '__original'] = array(
+        'label' => 'Lightbox2: ' . $name . '->original',
+        'field types' => array('nodereference'),
+    	);
+      $slideshow['slideshow__'. $name .'__original'] = array(
+        'label' => 'Lightbox2: (slideshow) '. $name .'->original',
+        'field types' => array('nodereference'),
+      );
+    	foreach($presets as $preset_id2 => $preset2) {
+      	$name2 = $preset2['presetname'];
+    	  $lightbox['lightbox2__'. $name .'__'. $name2] = array(
+          'label' => 'Lightbox2: '. $name .'->'. $name2,
+          'field types' => array('nodereference'),
+        );
+        $slideshow['slideshow__'. $name .'__'. $name2] = array(
+          'label' => 'Lightbox2: (slideshow) '. $name .'->'. $name2,
+          'field types' => array('nodereference'),
+        );
+      }
+    }
+  }
+  
+  $formatters = array_merge($imagecache, $lightbox, $slideshow);
+  return $formatters;
+}
+
+
+// ------------------------------------------------------------------
+// Other
+// ------------------------------------------------------------------
+
+/**
+ * Node type for images.
+ */
+function noderef_image_helper_image_node_type() {
+  return variable_get('noderef_image_helper_image_node_type', '');
+}
+
+/**
+ * Image field of image node type.
+ */
+function noderef_image_helper_image_field_name() {
+  return variable_get('noderef_image_helper_image_field_name', '');
+}
+
+/**
+ * Preset for image previews.
+ */
+function noderef_image_helper_preview_preset() {
+  return variable_get('noderef_image_helper_preview_preset', '');
+}
+
+/**
+ * View name for browsing.
+ */
+function noderef_image_helper_browsing_view() {
+  return variable_get('noderef_image_helper_browsing_view', '');
+}
+
+/**
+ * Get image from node id.
+ */
+function noderef_image_helper_image_from_nid($nid) {
+  static $image_cache = array();
+  if (is_array($nid) || !$nid)
+    return FALSE;
+  if (isset($image_cache[$nid])) {
+    return $image_cache[$nid];
+  }
+  $node = node_load($nid);
+  $type_info = content_types($node->type);
+  $field_name = noderef_image_helper_image_field_name();
+  // TODO
+  foreach($type_info['fields'] as $field) {
+    if ($field['type'] == 'filefield') {
+      $fieldname = $field['field_name'];
+      $temp = $node->$fieldname;
+      $temp[0]['fieldname'] = $fieldname;
+      $image_cache[$nid] = $temp[0];
+    }
+  }
+  return $image_cache[$nid];
+}
+
+/**
+ * The built-in view used to browse images.
+ */
+function noderef_image_helper_view() {
+  $node_type = noderef_image_helper_image_node_type();
+  
+  views_include('view');
+  $view = new view;
+  $view->name = 'noderef_image_helper_built_in';
+  $view->base_table = 'node';
+  $view->is_cacheable = FALSE;
+  $view->api_version = 2;
+  $handler = $view->new_display('default', 'Defaults', 'default');
+  $handler->override_option('sorts', array(
+    'last_updated' => array(
+      'order' => 'DESC',
+      'granularity' => 'second',
+      'id' => 'last_updated',
+      'table' => 'node_comment_statistics',
+      'field' => 'last_updated',
+    ),
+  ));
+  $handler->override_option('filters', array(
+    'status' => array(
+      'operator' => '=',
+      'value' => '1',
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+    ),
+    'type' => array(
+      'operator' => 'in',
+      'value' => array(
+        $node_type => $node_type,
+      ),
+      'id' => 'type',
+      'table' => 'node',
+      'field' => 'type',
+    ),
+    'title' => array(
+      'operator' => 'contains',
+      'case' => 0,
+      'id' => 'title',
+      'table' => 'node',
+      'field' => 'title',
+      'exposed' => TRUE,
+      'expose' => array(
+        'use_operator' => 0,
+        'operator' => 'title_op',
+        'identifier' => 'title',
+        'label' => 'Title',
+        'optional' => 1,
+      ),
+    ),
+  ));
+  $handler->override_option('items_per_page', 9);
+  $handler->override_option('use_pager', '1');
+  $handler->override_option('style_plugin', 'grid');
+  $handler->override_option('style_options', array(
+    'columns' => '3',
+    'alignment' => 'horizontal',
+  ));
+  $handler->override_option('row_plugin', 'noderef_image');
+  return $view;
+}
+
+// ------------------------------------------------------------------
+// Theming
+// ------------------------------------------------------------------
+
+/**
+ * Implementation of hook_theme().
+ */
+function noderef_image_helper_theme() {
+  $theme = array();
+  
+  $theme['noderef_image_helper_popup'] = array(
+    'arguments' => array('content' => NULL),
+  );
+  $theme['noderef_image_helper'] = array(
+    'arguments' => array('image_nid' => NULL, 'preset' => NULL),
+  );
+  $theme['noderef_image_helper_element'] = array(
+    'arguments' => array('element' => NULL),
+  );
+  
+  $presets = imagecache_presets();
+  foreach($presets as $preset_id => $preset) {
+    $name = $preset['presetname'];
+    $theme['noderef_image_helper_formatter_imagecache__' . $name] = array(
+      'arguments' => array('element' => NULL),
+      'function' => 'theme_noderef_image_helper_imagecache',
+    );
+    $theme['noderef_image_helper_formatter_imagecache_link_node__' . $name] = array(
+      'arguments' => array('element' => NULL),
+      'function' => 'theme_noderef_image_helper_imagecache_link_node',
+    );
+    $theme['noderef_image_helper_formatter_imagecache_link_image__' . $name] = array(
+      'arguments' => array('element' => NULL),
+      'function' => 'theme_noderef_image_helper_imagecache_link_image',
+    );
+    if (module_exists('lightbox2')) {
+      $theme['noderef_image_helper_formatter_lightbox2__'. $name .'__original'] = array(
+        'arguments' => array('element' => NULL),
+        'function' => 'theme_noderef_image_helper_lightbox2',
+      );
+      $theme['noderef_image_helper_formatter_slideshow__'. $name .'__original'] = array(
+        'arguments' => array('element' => NULL),
+        'function' => 'theme_noderef_image_helper_slideshow',
+      );
+      foreach($presets as $preset_id2 => $preset2) {
+        $name2 = $preset2['presetname'];
+        $theme['noderef_image_helper_formatter_lightbox2__'. $name .'__'. $name2] = array(
+          'arguments' => array('element' => NULL),
+          'function' => 'theme_noderef_image_helper_lightbox2',
+        );
+        $theme['noderef_image_helper_formatter_slideshow__'. $name .'__'. $name2] = array(
+          'arguments' => array('element' => NULL),
+          'function' => 'theme_noderef_image_helper_slideshow',
+        );
+      }
+    }
+  }
+  return $theme;
+}
+
+function theme_noderef_image_helper($image_nid, $preset) {
+  if ($image_nid) {
+    $image = noderef_image_helper_image_from_nid($image_nid);
+    $image_html = theme('imagecache', $preset, $image['filepath'], $image['data']['alt'], $image['data']['title']);
+  }
+  return $image_html;
+}
+
+function theme_noderef_image_helper_imagecache($element) {
+  list($temp, $preset) = explode('__', $element['#formatter']);
+  $image_html = theme('noderef_image_helper', $element['#item']['nid'], $preset);
+  return $image_html;
+}
+
+function theme_noderef_image_helper_imagecache_link_node($element) {
+  list($temp, $preset) = explode('__', $element['#formatter']);
+  $image_html = theme('noderef_image_helper', $element['#item']['nid'], $preset);
+  return l($image_html, 'node/' . $element['#node']->nid, array('html' => TRUE));
+}
+
+function theme_noderef_image_helper_imagecache_link_image($element) {
+  list($temp, $preset) = explode('__', $element['#formatter']);
+  $image_html = theme('noderef_image_helper', $element['#item']['nid'], $preset);
+  return l($image_html, 'node/' . $element['#item']['nid'], array('html' => TRUE));
+}
+
+function theme_noderef_image_helper_lightbox2($element) {
+  list($temp, $preset_from, $preset_to) = explode('__', $element['#formatter']);
+  $ref_nid = $element['#item']['nid'];
+  $image = noderef_image_helper_image_from_nid($ref_nid);
+  $field_name = noderef_image_helper_image_field_name();
+  $node = $element['#node'];
+  require_once(drupal_get_path('module', 'lightbox2') . '/lightbox2.formatter.inc');
+  return lightbox2_imagefield_image_imagecache($field_name, $image, '', $node, $preset_from, $preset_to);
+}
+
+function theme_noderef_image_helper_slideshow($element) {
+  list($temp, $preset_from, $preset_to) = explode('__', $element['#formatter']);
+  $ref_nid = $element['#item']['nid'];
+  if ($ref_nid) {
+    $image = noderef_image_helper_image_from_nid($ref_nid);
+    $field_name = noderef_image_helper_image_field_name();
+    $node = $element['#node'];
+    require_once(drupal_get_path('module', 'lightbox2') . '/lightbox2.formatter.inc');
+    return lightbox2_imagefield_image_imagecache($field_name, $image, '__lightshow2__', $node, $preset_from, $preset_to);
+  }
+  return '';
+}
+
+
+function theme_noderef_image_helper_element($element) {
+  return $element['#children'];
+}
+
+
+function theme_noderef_image_helper_popup($content) {
+  drupal_add_css(drupal_get_path('module', 'noderef_image_helper') . '/noderef_image_helper.css');
+      
+  $output = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'."\n";
+  $output .= '<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">'."\n";
+  $output .= "<head>\n";
+  $output .= '<title>'. drupal_get_title() ."</title>\n";
+  
+  $output .= drupal_get_html_head();
+  $output .= drupal_get_css();
+  $output .= drupal_get_js();
+  // Ensure that img_assist.js is imported last.
+  $path = drupal_get_path('module', 'img_assist') .'/img_assist_popup.css';
+  $output .= "<style type=\"text/css\" media=\"all\">@import \"". base_path() . $path ."\";</style>\n";
+  
+  $output .= "</head>\n";
+  $output .= "<body class=\"noderef-image-helper-popup\">\n";
+  
+  $output .= theme_status_messages();
+  
+  $output .= "<div class=\"content\">\n";
+  $output .= $content;
+  $output .= "</div>\n";
+  $output .= '</body>';
+  $output .= '</html>';
+  return $output;
+}

@@ -1,0 +1,6 @@
+; $Id$
+name = "Views Selector"
+description = "Views style plugin that allows you to select nodereference images from a view with minimal fuss."
+package = "Views"
+core = 6.x
+dependencies[] = views

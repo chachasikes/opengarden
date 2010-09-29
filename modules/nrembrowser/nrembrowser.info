@@ -1,0 +1,15 @@
+; $Id: nrembrowser.info,v 1.2 2010/06/17 19:28:32 aaron Exp $
+
+name = Node Reference/Embed Media Browser (nrembrowser)
+description = Provides a media thumbnail browser for editors to select nodes for fields and inline inserts of embedded nodes.
+core = 6.x
+package = Media
+dependencies[] = jquery_ui
+dependencies[] = jquery_update
+
+; Information added by drupal.org packaging script on 2010-09-23
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "nrembrowser"
+datestamp = "1285200949"
+

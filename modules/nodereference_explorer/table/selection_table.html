@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Photopicker Selection table</title>
+<link type="text/css" rel="stylesheet" media="all" href="css/autocomplete.css" />
+<link type="text/css" rel="stylesheet" media="all" href="css/flexigrid/flexigrid.css?2" />
+<link type="text/css" rel="stylesheet" media="all" href="../thickbox/thickbox.css" />
+
+<script type="text/javascript" src="/misc/jquery.js?2"></script>
+<script type="text/javascript" src="/misc/drupal.js?2"></script>
+<script type="text/javascript" src="js/selection_table.js"></script>
+<script type="text/javascript" src="js/flexigrid.js?2"></script>
+<script type="text/javascript" src="../cache/aqCookie.js"></script>
+<script type="text/javascript" src="../thickbox/thickbox.js"></script>
+</head>
+<body>
+     <div id="dialog" class="flora" title="Node/Item Selection"></div>
+
+<table border="0" cellpadding="0" cellspacing="2">
+	<tr>
+		<td colspan="2">
+			<b>Search:</b>
+		</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td colspan="2">
+			<b>Selected Node:</b>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="text" name="field_list[0][nid][nid]" id="edit-field-list-0-nid-nid" size="45" value="" class="form-text form-autocomplete text" />
+		</td>
+		<td></td>
+		<td rowspan="4">
+			<a href="" style="display:none" class="thickbox">
+        		<img id="selectedImage" src=""/>
+    		</a>
+    	</td>
+    	<td id="id-key">ID:</td>
+    	<td id="id-value">---</td>
+    </tr>    	
+    <tr>
+    	<td>
+			<select id="taxonomy_terms"></select>
+		</td>
+		<td></td>
+		<td></td>
+    	<td id="name-key">Title:</td>
+    	<td id="name-value">---</td>
+    </tr>
+    <tr>
+    	<td></td>
+    	<td></td>
+    	<td></td>
+    	<td id="url-key">Date:</td>
+    	<td id="url-value">---</td>
+    </tr>
+</table>
+<table class="flex1" style="display:none"></table>
+
+</body>
+</html>

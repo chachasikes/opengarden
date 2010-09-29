@@ -1,0 +1,20 @@
+.noderef-image-helper-preview {
+	float: right;
+	margin: 0px 10px 0px 10px;
+}
+
+.noderef-browse-element {
+	margin: 5px;
+}
+
+.noderef-browse-element h2 {
+	font-size: 14px;
+}
+
+.noderef-browse-element .info {
+  font-size: 10px;
+}
+
+.noderef-image-helper-popup .content {
+  padding: 0px 20px 20px 20px;
+}
