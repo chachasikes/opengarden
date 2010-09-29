@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsSyndicationParser.inc,v 1.17 2010/09/08 20:15:19 alexb Exp $
+// $Id: FeedsSyndicationParser.inc,v 1.14 2010/03/29 02:55:50 alexb Exp $
 
 /**
  * Class definition for Common Syndication Parser.
@@ -18,14 +18,7 @@ class FeedsSyndicationParser extends FeedsParser {
     $batch->setDescription($result['description']);
     $batch->setLink($result['link']);
     if (is_array($result['items'])) {
-      foreach ($result['items'] as $item) {
-        if (isset($item['geolocations'])) {
-          foreach ($item['geolocations'] as $k => $v) {
-            $item['geolocations'][$k] = new FeedsGeoTermElement($v);
-          }
-        }
-        $batch->addItem($item);
-      }
+      $batch->setItems($result['items']);
     }
   }
 
@@ -66,10 +59,6 @@ class FeedsSyndicationParser extends FeedsParser {
         'name' => t('Categories'),
         'description' => t('An array of categories that have been assigned to the feed item.'),
       ),
-      'geolocations' => array(
-        'name' => t('Geo Locations'),
-        'description' => t('An array of geographic locations with a name and a position.'),
-      ),
-     ) + parent::getMappingSources();
+     );
   }
 }

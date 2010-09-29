@@ -1,5 +1,5 @@
 <?php
-// $Id: feeds.pages.inc,v 1.22 2010/09/16 19:01:04 alexb Exp $
+// $Id: feeds.pages.inc,v 1.19 2010/07/11 16:26:06 alexb Exp $
 
 /**
  * @file
@@ -29,7 +29,7 @@ function feeds_page() {
       }
       $rows[] = array(
         l($title, $link),
-        check_plain($importer->config['description']),
+        $importer->config['description'],
       );
     }
   }
@@ -85,9 +85,9 @@ function feeds_import_form_submit($form, &$form_state) {
     feeds_batch_set(t('Importing'), 'import', $form['#importer_id']);
   }
 
-  // Add to schedule, make sure importer is scheduled, too.
-  $source->schedule();
-  $source->importer->schedule();
+  // Add importer to schedule.
+  feeds_scheduler()->add($form['#importer_id'], 'import');
+  feeds_scheduler()->add($form['#importer_id'], 'expire');
 }
 
 /**
@@ -133,11 +133,14 @@ function feeds_delete_tab_form(&$form_state, $importer_id, $node = NULL) {
 
 /**
  * Submit handler for feeds_delete_tab_form().
+ *
+ * Reset import schedule of given subscription to expedite refresh.
  */
 function feeds_delete_tab_form_submit($form, &$form_state) {
   $form_state['redirect'] = $form['#redirect'];
   $feed_nid = empty($form['#feed_nid']) ? 0 : $form['#feed_nid'];
   feeds_batch_set(t('Deleting'), 'clear', $form['#importer_id'], $feed_nid);
+  feeds_scheduler()->add($form['#importer_id'], 'import', $feed_nid);
 }
 
 /**
@@ -166,7 +169,7 @@ function theme_feeds_upload($element) {
     $output .= '<div class="file-size">';
     $output .= format_size($info['size']);
     $output .= '</div>';
-    if (isset($info['mime'])) {
+    if ($info['mime']) {
       $output .= '<div class="file-mime">';
       $output .= check_plain($info['mime']);
       $output .= '</div>';

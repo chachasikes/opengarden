@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsCSVParser.inc,v 1.16 2010/09/16 19:03:27 alexb Exp $
+// $Id: FeedsCSVParser.inc,v 1.12 2010/07/11 01:36:39 alexb Exp $
 
 /**
  * Parses a given file as a CSV file.
@@ -19,67 +19,30 @@ class FeedsCSVParser extends FeedsParser {
     $delimiter = $source_config['delimiter'] == 'TAB' ? "\t" : $source_config['delimiter'];
     $parser->setDelimiter($delimiter);
 
-    $header = $this->parseHeader($parser, $iterator);
-    if (!header) {
-      return;
-    }
-    $parser->setColumnNames($header);
-
-    // Populate batch.
-    $batch->setItems($this->parseItems($parser, $iterator));
-  }
-
-  /**
-   * Get first line and use it for column names, convert them to lower case.
-   * Be aware that the $parser and iterator objects can be modified in this
-   * function since they are passed in by reference
-   * 
-   * @param ParserCSV $parser
-   * @param ParserCSVIterator $iterator
-   * @return
-   *   An array of lower-cased column names to use as keys for the parsed items.
-   */
-  protected function parseHeader(ParserCSV $parser, ParserCSVIterator $iterator) {
+    // Get first line and use it for column names, convert them to lower case.
     $parser->setLineLimit(1);
     $rows = $parser->parse($iterator);
-    if (!count($rows)) {
-      return FALSE;
-    }
     $header = array_shift($rows);
     foreach ($header as $i => $title) {
       $header[$i] = trim(drupal_strtolower($title));
     }
-    return $header;
-  }
+    $parser->setColumnNames($header);
 
-  /**
-   * Parse all of the items from the CSV.
-   *
-   * @param ParserCSV $parser
-   * @param ParserCSVIterator $iterator
-   * @return
-   *   An array of rows of the CSV keyed by the column names previously set
-   */
-  protected function parseItems(ParserCSV $parser, ParserCSVIterator $iterator) {
     // Set line limit to 0 and start byte to last position and parse rest.
     $parser->setLineLimit(0);
     $parser->setStartByte($parser->lastLinePos());
     $rows = $parser->parse($iterator);
-    return $rows;
-  }
 
-  /**
-   * Override parent::getMappingSources().
-   */
-  public function getMappingSources() {
-    return FALSE;
+    // Populate batch.
+    $batch->setItems($rows);
   }
 
   /**
    * Override parent::getSourceElement() to use only lower keys.
    */
-  public function getSourceElement(FeedsImportBatch $batch, $element_key) {
-    return parent::getSourceElement($batch, drupal_strtolower($element_key));
+  public function getSourceElement($item, $element_key) {
+    $element_key = drupal_strtolower($element_key);
+    return isset($item[$element_key]) ? $item[$element_key] : '';
   }
 
   /**
@@ -103,9 +66,9 @@ class FeedsCSVParser extends FeedsParser {
     $mappings = feeds_importer($this->id)->processor->config['mappings'];
     $sources = $uniques = array();
     foreach ($mappings as $mapping) {
-      $sources[] = check_plain($mapping['source']);
+      $sources[] = $mapping['source'];
       if ($mapping['unique']) {
-        $uniques[] = check_plain($mapping['source']);
+        $uniques[] = $mapping['source'];
       }
     }
 

@@ -1,0 +1,16 @@
+<?php 
+
+function feeds_gmaps_parser_feeds_plugins() {
+	$info = array();
+	$info['FeedsGMapsParser'] = array(
+	   'name' => 'Google Maps GeoRSS parser',
+	   'description' => 'Parse GeoRSS feeds from Google Maps.',
+	   'handler' => array(
+	       'parent' => 'FeedsParser',
+	       'class' => 'FeedsGMapsParser',
+	       'file' => 'FeedsGMapsParser.inc',
+	       'path' => drupal_get_path('module', 'feeds_gmaps_parser'),
+	   ),
+	);
+	return $info;
+}

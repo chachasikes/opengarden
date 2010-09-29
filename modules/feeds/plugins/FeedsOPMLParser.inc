@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsOPMLParser.inc,v 1.6 2010/09/07 17:29:36 alexb Exp $
+// $Id: FeedsOPMLParser.inc,v 1.5 2010/03/29 02:55:50 alexb Exp $
 
 /**
  * @file
@@ -34,6 +34,6 @@ class FeedsOPMLParser extends FeedsParser {
         'name' => t('Feed URL'),
         'description' => t('URL of the feed.'),
       ),
-    ) + parent::getMappingSources();
+    );
   }
 }

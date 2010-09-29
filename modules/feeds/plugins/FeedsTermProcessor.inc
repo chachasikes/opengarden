@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsTermProcessor.inc,v 1.20 2010/09/14 15:03:07 alexb Exp $
+// $Id: FeedsTermProcessor.inc,v 1.10 2010/07/13 19:32:06 alexb Exp $
 
 /**
  * @file
@@ -25,15 +25,10 @@ class FeedsTermProcessor extends FeedsProcessor {
 
     while ($item = $batch->shiftItem()) {
 
-      if (!($tid = $this->existingItemId($batch, $source)) || $this->config['update_existing'] != FEEDS_SKIP_EXISTING) {
+      if (!($tid = $this->existingItemId($item, $source)) || $this->config['update_existing']) {
 
         // Map item to a term.
-        $term = array();
-        if ($tid && $this->config['update_existing'] == FEEDS_UPDATE_EXISTING) {
-          $term = (array) taxonomy_get_term($tid, TRUE);
-          $term = module_invoke_all('feeds_taxonomy_load', $term);
-        }
-        $term = $this->map($batch, $term, $source->feed_nid);
+        $term = $this->map($item);
 
         // Check if term name is set, otherwise continue.
         if (empty($term['name'])) {
@@ -47,20 +42,21 @@ class FeedsTermProcessor extends FeedsProcessor {
         }
 
         // Save the term.
-        $term['importer_id'] = $this->id;
-        $term['feed_nid'] = $this->feed_nid;
         taxonomy_save_term($term);
+
         if ($tid) {
           $updated++;
         }
         else {
           $created++;
         }
+
       }
     }
 
     // Set messages.
-    $vocabulary = $this->vocabulary();
+    $vocabularies = taxonomy_get_vocabularies();
+    $vocabulary = $vocabularies[$this->config['vocabulary']];
     if ($no_name) {
       drupal_set_message(
         format_plural(
@@ -81,6 +77,8 @@ class FeedsTermProcessor extends FeedsProcessor {
     else {
       drupal_set_message(t('There are no new terms.'));
     }
+
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -88,46 +86,36 @@ class FeedsTermProcessor extends FeedsProcessor {
    */
   public function clear(FeedsBatch $batch, FeedsSource $source) {
     $deleted = 0;
-    $vocabulary = $this->vocabulary();
-    $result = db_query("SELECT td.tid
-                        FROM {term_data} td
-                        JOIN {feeds_term_item} ft ON td.tid = ft.tid
-                        WHERE td.vid = %d
-                        AND ft.id = '%s'
-                        AND ft.feed_nid = %d",
-                        $vocabulary->vid, $this->id, $source->feed_nid);
+
+    $result = db_query("SELECT tid FROM {term_data} WHERE vid = %d", $this->config["vocabulary"]);
     while ($term = db_fetch_object($result)) {
       if (taxonomy_del_term($term->tid) == SAVED_DELETED) {
         $deleted++;
       }
     }
+
     // Set messages.
+    $vocabularies = taxonomy_get_vocabularies();
+    $vocabulary = $vocabularies[$this->config['vocabulary']];
     if ($deleted) {
       drupal_set_message(format_plural($deleted, 'Deleted @number term from !vocabulary.', 'Deleted @number terms from !vocabulary.', array('@number' => $deleted, '!vocabulary' => $vocabulary->name)));
     }
     else {
       drupal_set_message(t('No terms to be deleted.'));
     }
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
    * Execute mapping on an item.
    */
-  protected function map(FeedsImportBatch $batch, $target_term = NULL) {
-    // Prepare term object, have parent class do the iterating.
-    if (!$target_term) {
-      $target_term = array();
-    }
-    if (!$vocabulary = $this->vocabulary()) {
-      throw new Exception(t('No vocabulary specified for term processor'));
-    }
-    $target_term['vid'] = $vocabulary->vid;
-    $target_term = parent::map($batch, $target_term);
-    // Taxonomy module expects synonyms to be supplied as a single string.
-    if (isset($target_term['synonyms']) && is_array(isset($target_term['synonyms']))) {
-      $target_term['synonyms'] = implode("\n", $target_term['synonyms']);
-    }
-    return $target_term;
+  protected function map($source_item) {
+    // Prepare term object.
+    $target_term = array();
+    $target_term['vid'] = $this->config['vocabulary'];
+
+    // Have parent class do the iterating.
+    return parent::map($source_item, $target_term);
   }
 
   /**
@@ -136,7 +124,7 @@ class FeedsTermProcessor extends FeedsProcessor {
   public function configDefaults() {
     return array(
       'vocabulary' => 0,
-      'update_existing' => FEEDS_SKIP_EXISTING,
+      'update_existing' => 0,
       'mappings' => array(),
     );
   }
@@ -147,12 +135,7 @@ class FeedsTermProcessor extends FeedsProcessor {
   public function configForm(&$form_state) {
     $options = array(0 => t('Select a vocabulary'));
     foreach (taxonomy_get_vocabularies() as $vid => $vocab) {
-      if (strpos($vocab->module, 'features_') === 0) {
-        $options[$vocab->module] = $vocab->name;
-      }
-      else {
-        $options[$vid] = $vocab->name;
-      }
+      $options[$vid] = $vocab->name;
     }
     $form = array();
     $form['vocabulary'] = array(
@@ -162,27 +145,14 @@ class FeedsTermProcessor extends FeedsProcessor {
       '#options' => $options,
       '#default_value' => $this->config['vocabulary'],
     );
+    // @todo Implement true updating.
     $form['update_existing'] = array(
-      '#type' => 'radios',
-      '#title' => t('Update existing terms'),
-      '#description' => t('Select how existing terms should be updated. Existing terms will be determined using mappings that are a "unique target".'),
-      '#options' => array(
-        FEEDS_SKIP_EXISTING => 'Do not update existing terms',
-        FEEDS_REPLACE_EXISTING => 'Replace existing terms',
-        FEEDS_UPDATE_EXISTING => 'Update existing terms (slower than replacing them)',
-      ),
+      '#type' => 'checkbox',
+      '#title' => t('Replace existing terms'),
+      '#description' => t('If an existing term is found for an imported term, replace it. Existing terms will be determined using mappings that are a "unique target".'),
       '#default_value' => $this->config['update_existing'],
     );
     return $form;
-  }
-
-  /**
-   * Override parent::configFormValidate().
-   */
-  public function configFormValidate(&$values) {
-    if (empty($values['vocabulary'])) {
-      form_set_error('vocabulary', t('Choose a vocabulary'));
-    }
   }
 
   /**
@@ -195,56 +165,25 @@ class FeedsTermProcessor extends FeedsProcessor {
         'description' => t('Name of the taxonomy term.'),
         'optional_unique' => TRUE,
        ),
-      'description' => array(
-        'name' => t('Term description'),
-        'description' => t('Description of the taxonomy term.'),
-       ),
-      'synonyms' => array(
-        'name' => t('Term synonyms'),
-        'description' => t('One synonym or an array of synonyms of the taxonomy term.'),
-       ),
     );
     // Let implementers of hook_feeds_term_processor_targets() add their targets.
-    $vocabulary = $this->vocabulary();
-    drupal_alter('feeds_term_processor_targets', $targets, $vocabulary->vid);
+    drupal_alter('feeds_term_processor_targets', $targets, $this->config['vocabulary']);
     return $targets;
   }
 
   /**
    * Get id of an existing feed item term if available.
    */
-  protected function existingItemId(FeedsImportBatch $batch, FeedsSource $source) {
+  protected function existingItemId($source_item, FeedsSource $source) {
 
     // The only possible unique target is name.
-    foreach ($this->uniqueTargets($batch) as $target => $value) {
+    foreach ($this->uniqueTargets($source_item) as $target => $value) {
       if ($target == 'name') {
-        $vocabulary = $this->vocabulary();
-        if ($tid = db_result(db_query("SELECT tid FROM {term_data} WHERE name = '%s' AND vid = %d", $value, $vocabulary->vid))) {
+        if ($tid = db_result(db_query("SELECT tid FROM {term_data} WHERE name = '%s' AND vid = %d", $value, $this->config["vocabulary"]))) {
           return $tid;
         }
       }
     }
     return 0;
-  }
-
-  /**
-   * Return vocabulary to map to.
-   *
-   * Feeds supports looking up vocabularies by their module name as part of an
-   * effort to use the vocabulary.module field as machine name to make
-   * vocabularies exportable.
-   */
-  public function vocabulary() {
-    $vocabularies = taxonomy_get_vocabularies();
-    if (is_numeric($this->config['vocabulary'])) {
-      return $vocabularies[$this->config['vocabulary']];
-    }
-    else {
-      foreach ($vocabularies as $vocabulary) {
-        if ($vocabulary->module == $this->config['vocabulary']) {
-          return $vocabulary;
-        }
-      }
-    }
   }
 }

@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsNodeProcessor.inc,v 1.51.2.1 2010/09/17 13:46:30 alexb Exp $
+// $Id: FeedsNodeProcessor.inc,v 1.45 2010/07/18 18:33:43 alexb Exp $
 
 /**
  * @file
@@ -25,28 +25,25 @@ class FeedsNodeProcessor extends FeedsProcessor {
    */
   public function process(FeedsImportBatch $batch, FeedsSource $source) {
 
-    // Keep track of processed items in this pass, set total number of items.
+    // Keep track of processed items in this pass.
     $processed = 0;
-    if (!$batch->getTotal(FEEDS_PROCESSING)) {
-      $batch->setTotal(FEEDS_PROCESSING, $batch->getItemCount());
-    }
 
     while ($item = $batch->shiftItem()) {
 
       // Create/update if item does not exist or update existing is enabled.
-      if (!($nid = $this->existingItemId($batch, $source)) || ($this->config['update_existing'] != FEEDS_SKIP_EXISTING)) {
+      if (!($nid = $this->existingItemId($item, $source)) || ($this->config['update_existing'] != FEEDS_SKIP_EXISTING)) {
+        $node = $this->buildNode($nid, $source->feed_nid);
+
         // Only proceed if item has actually changed.
         $hash = $this->hash($item);
         if (!empty($nid) && $hash == $this->getHash($nid)) {
           continue;
         }
-
-        $node = $this->buildNode($nid, $source->feed_nid);
         $node->feeds_node_item->hash = $hash;
 
         // Map and save node. If errors occur don't stop but report them.
         try {
-          $this->map($batch, $node);
+          $this->map($item, $node);
           node_save($node);
           if (!empty($nid)) {
             $batch->updated++;
@@ -63,8 +60,7 @@ class FeedsNodeProcessor extends FeedsProcessor {
 
       $processed++;
       if ($processed >= variable_get('feeds_node_batch_size', FEEDS_NODE_BATCH_SIZE)) {
-        $batch->setProgress(FEEDS_PROCESSING, $batch->created + $batch->updated);
-        return;
+        return (1.0 / ($batch->total + 1)) * ($batch->updated + $batch->created); // Add + 1 to make sure that result is not 1.0 = finished.
       }
     }
 
@@ -78,16 +74,16 @@ class FeedsNodeProcessor extends FeedsProcessor {
     else {
       drupal_set_message(t('There is no new content.'));
     }
-    $batch->setProgress(FEEDS_PROCESSING, FEEDS_BATCH_COMPLETE);
+
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
    * Implementation of FeedsProcessor::clear().
    */
   public function clear(FeedsBatch $batch, FeedsSource $source) {
-    if (!$batch->getTotal(FEEDS_CLEARING)) {
-      $total = db_result(db_query("SELECT COUNT(nid) FROM {feeds_node_item} WHERE id = '%s' AND feed_nid = %d", $source->id, $source->feed_nid));
-      $batch->setTotal(FEEDS_CLEARING, $total);
+    if (empty($batch->total)) {
+      $batch->total = db_result(db_query("SELECT COUNT(nid) FROM {feeds_node_item} WHERE id = '%s' AND feed_nid = %d", $source->id, $source->feed_nid));
     }
     $result = db_query_range("SELECT nid FROM {feeds_node_item} WHERE id = '%s' AND feed_nid = %d", $source->id, $source->feed_nid, 0, variable_get('feeds_node_batch_size', FEEDS_NODE_BATCH_SIZE));
     while ($node = db_fetch_object($result)) {
@@ -95,8 +91,7 @@ class FeedsNodeProcessor extends FeedsProcessor {
       $batch->deleted++;
     }
     if (db_result(db_query_range("SELECT nid FROM {feeds_node_item} WHERE id = '%s' AND feed_nid = %d", $source->id, $source->feed_nid, 0, 1))) {
-      $batch->setProgress(FEEDS_CLEARING, $batch->deleted);
-      return;
+      return (1.0 / ($batch->total + 1)) * $batch->deleted;
     }
 
     // Set message.
@@ -107,7 +102,7 @@ class FeedsNodeProcessor extends FeedsProcessor {
     else {
       drupal_set_message(t('There is no content to be deleted.'));
     }
-    $batch->setProgress(FEEDS_CLEARING, FEEDS_BATCH_COMPLETE);
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -128,6 +123,14 @@ class FeedsNodeProcessor extends FeedsProcessor {
       return FEEDS_BATCH_ACTIVE;
     }
     return FEEDS_BATCH_COMPLETE;
+  }
+
+  /**
+   * Override parent::map() to load all available add-on mappers.
+   */
+  protected function map($source_item, $target_node) {
+    self::loadMappers();
+    return parent::map($source_item, $target_node);
   }
 
   /**
@@ -221,16 +224,6 @@ class FeedsNodeProcessor extends FeedsProcessor {
   }
 
   /**
-   * Reschedule if expiry time changes.
-   */
-  public function configFormSubmit(&$values) {
-    if ($this->config['expire'] != $values['expire']) {
-      feeds_reschedule($this->id);
-    }
-    parent::configFormSubmit($values);
-  }
-
-  /**
    * Override setTargetElement to operate on a target item that is a node.
    */
   public function setTargetElement($target_node, $target_element, $value) {
@@ -241,7 +234,7 @@ class FeedsNodeProcessor extends FeedsProcessor {
       $target_node->teaser = node_teaser($value);
       $target_node->body = $value;
     }
-    elseif (in_array($target_element, array('title', 'status', 'created', 'nid', 'uid'))) {
+    elseif (in_array($target_element, array('title', 'status', 'created'))) {
       $target_node->$target_element = $value;
     }
   }
@@ -266,11 +259,6 @@ class FeedsNodeProcessor extends FeedsProcessor {
       );
     }
     $targets += array(
-      'nid' => array(
-        'name' => t('Node ID'),
-        'description' => t('The nid of the node. NOTE: use this feature with care, node ids are usually assigned by Drupal.'),
-        'optional_unique' => TRUE,
-      ),
       'uid' => array(
         'name' => t('User ID'),
         'description' => t('The Drupal user ID of the node author.'),
@@ -305,15 +293,12 @@ class FeedsNodeProcessor extends FeedsProcessor {
   /**
    * Get nid of an existing feed item node if available.
    */
-  protected function existingItemId(FeedsImportBatch $batch, FeedsSource $source) {
+  protected function existingItemId($source_item, FeedsSource $source) {
 
     // Iterate through all unique targets and test whether they do already
     // exist in the database.
-    foreach ($this->uniqueTargets($batch) as $target => $value) {
+    foreach ($this->uniqueTargets($source_item) as $target => $value) {
       switch ($target) {
-        case 'nid':
-          $nid = db_result(db_query("SELECT nid FROM {node} WHERE nid = %d", $value));
-          break;
         case 'url':
           $nid = db_result(db_query("SELECT nid FROM {feeds_node_item} WHERE feed_nid = %d AND id = '%s' AND url = '%s'", $source->feed_nid, $source->id, $value));
           break;
@@ -376,21 +361,13 @@ class FeedsNodeProcessor extends FeedsProcessor {
   }
 
   /**
-   * Create MD5 hash of item and mappings array.
-   *
-   * Include mappings as a change in mappings may have an affect on the item
-   * produced.
-   *
+   * Create MD5 hash of $item array.
    * @return Always returns a hash, even with empty, NULL, FALSE:
    *  Empty arrays return 40cd750bba9870f18aada2478b24840a
    *  Empty/NULL/FALSE strings return d41d8cd98f00b204e9800998ecf8427e
    */
   protected function hash($item) {
-    static $serialized_mappings;
-    if (!$serialized_mappings) {
-      $serialized_mappings = serialize($this->config['mappings']);
-    }
-    return hash('md5', serialize($item) . $serialized_mappings);
+    return hash('md5', serialize($item));
   }
 
   /**

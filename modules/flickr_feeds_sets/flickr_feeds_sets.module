@@ -1,0 +1,3 @@
+<?php
+
+include_once('flickr_feeds_sets.features.inc');

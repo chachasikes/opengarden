@@ -108,7 +108,7 @@ class PuSHSubscriber {
    *   The callback to unsubscribe.
    */
   public function unsubscribe($topic_url, $callback_url) {
-    if ($sub = $this->subscription()) {
+    if ($sub = $this->loadSubscription()) {
       $this->request($sub->hub, $sub->topic, 'unsubscribe', $callback_url);
       $sub->delete();
     }
@@ -156,7 +156,7 @@ class PuSHSubscriber {
         if ($ignore_signature) {
           return $raw;
         }
-        if (isset($_SERVER['HTTP_X_HUB_SIGNATURE']) && ($sub = $this->subscription())) {
+        if (isset($_SERVER['HTTP_X_HUB_SIGNATURE']) && ($sub = $this->loadSubscription())) {
           $result = array();
           parse_str($_SERVER['HTTP_X_HUB_SIGNATURE'], $result);
           if (isset($result['sha1']) && $result['sha1'] == hash_hmac('sha1', $raw, $sub->secret)) {
@@ -192,7 +192,7 @@ class PuSHSubscriber {
        *
        * In all other cases confirm negative.
        */
-      if ($sub = $this->subscription()) {
+      if ($sub = $this->loadSubscription()) {
         if ($_GET['hub_verify_token'] == $sub->post_fields['hub.verify_token']) {
           if ($_GET['hub_mode'] == 'subscribe' && $sub->status == 'subscribe') {
             $sub->status = 'subscribed';
@@ -273,26 +273,10 @@ class PuSHSubscriber {
   }
 
   /**
-   * Get the subscription associated with this subscriber.
-   *
-   * @return
-   *   A PuSHSubscriptionInterface object if a subscription exist, NULL
-   *   otherwise.
+   * Helper for loading a subscription.
    */
-  public function subscription() {
+  protected function loadSubscription() {
     return call_user_func(array($this->subscription_class, 'load'), $this->domain, $this->subscriber_id);
-  }
-
-  /**
-   * Determine whether this subscriber is successfully subscribed or not.
-   */
-  public function subscribed() {
-    if ($sub = $this->subscription()) {
-      if ($sub->status == 'subscribed') {
-        return TRUE;
-      }
-    }
-    return FALSE;
   }
 
   /**

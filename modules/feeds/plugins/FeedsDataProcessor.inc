@@ -1,5 +1,5 @@
 <?php
-// $Id: FeedsDataProcessor.inc,v 1.24.2.1 2010/09/21 13:28:53 alexb Exp $
+// $Id: FeedsDataProcessor.inc,v 1.15 2010/07/13 19:32:06 alexb Exp $
 
 /**
  * @file
@@ -21,13 +21,13 @@ class FeedsDataProcessor extends FeedsProcessor {
     $expiry_time = $this->expiryTime();
 
     while ($item = $batch->shiftItem()) {
-      $id = $this->existingItemId($batch, $source);
+      $id = $this->existingItemId($item, $source);
 
       if ($id === FALSE || $this->config['update_existing']) {
         // Map item to a data record, feed_nid and timestamp are mandatory.
         $data = array();
         $data['feed_nid'] = $source->feed_nid;
-        $data = $this->map($batch, $data);
+        $data = $this->map($item, $data);
         if (!isset($data['timestamp'])) {
           $data['timestamp'] = FEEDS_REQUEST_TIME;
         }
@@ -60,6 +60,8 @@ class FeedsDataProcessor extends FeedsProcessor {
     else {
       drupal_set_message(t('There are no new items.'));
     }
+
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -72,12 +74,8 @@ class FeedsDataProcessor extends FeedsProcessor {
       'feed_nid' => $source->feed_nid,
     );
     $num = $this->handler()->delete($clause);
-    if ($num) {
-      drupal_set_message('All items have been deleted.');
-    }
-    else {
-      drupal_set_message('There were no items to delete.');
-    }
+    drupal_set_message(format_plural($num, 'Deleted @number item.', 'Deleted @number items.', array('@number' => $num)));
+    return FEEDS_BATCH_COMPLETE;
   }
 
   /**
@@ -106,6 +104,41 @@ class FeedsDataProcessor extends FeedsProcessor {
    */
   public function expiryTime() {
     return $this->config['expire'];
+  }
+
+  /**
+   * Override parent::addMapping() and create a new field for new mapping
+   * targets.
+   *
+   * @see getMappingTargets().
+   */
+  public function addMapping($source, $target, $unique = FALSE) {
+    if (empty($source) || empty($target)) {
+      return;
+    }
+
+    // Create a new field with targets that start with "new:"
+    @list($new, $type) = explode(':', $target);
+
+    if ($new == 'new') {
+      // Build a field name from the source key.
+      $field_name = data_safe_name($source);
+      // Get the full schema spec from data.
+      $type = data_get_field_definition($type);
+      // Add the field to the table.
+      $schema = $this->table()->get('table_schema');
+      if (!isset($schema['fields'][$field_name])) {
+        $target = $this->table()->addField($field_name, $type);
+        // Let the user know.
+        drupal_set_message(t('Created new field "!name".', array('!name' => $field_name)));
+      }
+      else {
+        throw new Exception(t('Field !field_name already exists as a mapping target. Remove it from mapping if you would like to map another source to it. Remove it from !data_table table if you would like to change its definition.', array('!field_name' => $field_name, '!data_table' => l($this->table()->get('name'), 'admin/content/data'))));
+      }
+    }
+
+    // Let parent populate the mapping configuration.
+    parent::addMapping($source, $target, $unique);
   }
 
   /**
@@ -175,11 +208,10 @@ class FeedsDataProcessor extends FeedsProcessor {
    * Set target element, bring element in a FeedsDataHandler format.
    */
   public function setTargetElement(&$target_item, $target_element, $value) {
-    if (empty($value)) {
-      return;
-    }
     if (strpos($target_element, '.')) {
+
       /**
+
       Add field in FeedsDataHandler format.
 
       This is the tricky part, FeedsDataHandler expects an *array* of records
@@ -197,20 +229,10 @@ class FeedsDataProcessor extends FeedsProcessor {
           $field => $v,
         );
       }
-      if (is_array($target_item["#$table"])) {
-        $target_item["#$table"] = array_merge($target_item["#$table"], $values);
-      }
-      else {
-        $target_item["#$table"] = $values;
-      }
+      $target_item['#'. $table] = $values;
     }
     else {
-      if (is_array($target_item[$target_element]) && is_array($value)) {
-        $target_item[$target_element] = array_merge($target_item[$target_element], $value);
-      }
-      else {
-        $target_item[$target_element] = $value;
-      }
+      $target_item[$target_element] = $value;
     }
   }
 
@@ -218,8 +240,8 @@ class FeedsDataProcessor extends FeedsProcessor {
    * Iterate through unique targets and try to load existing records.
    * Return id for the first match.
    */
-  protected function existingItemId(FeedsImportBatch $batch, FeedsSource $source) {
-    foreach ($this->uniqueTargets($batch) as $target => $value) {
+  protected function existingItemId($source_item, FeedsSource $source) {
+    foreach ($this->uniqueTargets($source_item) as $target => $value) {
       if ($records = $this->handler()->load(array('feed_nid' => $source->feed_nid, $target => $value))) {
         return $records[0]['id'];
       }
@@ -257,16 +279,6 @@ class FeedsDataProcessor extends FeedsProcessor {
       '#default_value' => $this->config['update_existing'],
     );
     return $form;
-  }
-
-  /**
-   * Reschedule if expiry time changes.
-   */
-  public function configFormSubmit(&$values) {
-    if ($this->config['expire'] != $values['expire']) {
-      feeds_reschedule($this->id);
-    }
-    parent::configFormSubmit($values);
   }
 
   /**
@@ -341,50 +353,5 @@ class FeedsDataProcessor extends FeedsProcessor {
          '0' => 'id',
        ),
     );
-  }
-
-  /**
-   * Override parent::addConfig().
-   */
-  public function addConfig($config) {
-    $this->processMappings($config);
-    return parent::addConfig($config);
-  }
-
-  /**
-   * Override parent::setConfig().
-   */
-  public function setConfig($config) {
-    $this->processMappings($config);
-    return parent::setConfig($config);
-  }
-
-  /**
-   * Create a new field for each new: mapping.
-   */
-  protected function processMappings(&$config) {
-    if (!empty($config['mappings'])) {
-      foreach ($config['mappings'] as &$mapping) {
-        @list($new, $type) = explode(':', $mapping['target']);
-
-        // Create a new field with targets that start with "new:"
-        if ($new == 'new') {
-          // Build a field name from the source key.
-          $field_name = data_safe_name($mapping['source']);
-          // Get the full schema spec from data.
-          $type = data_get_field_definition($type);
-          // Add the field to the table.
-          $schema = $this->table()->get('table_schema');
-          if (!isset($schema['fields'][$field_name])) {
-            $mapping['target'] = $this->table()->addField($field_name, $type);
-            // Let the user know.
-            drupal_set_message(t('Created new field "!name".', array('!name' => $field_name)));
-          }
-          else {
-            throw new Exception(t('Field !field_name already exists as a mapping target. Remove it from mapping if you would like to map another source to it. Remove it from !data_table table if you would like to change its definition.', array('!field_name' => $field_name, '!data_table' => l($this->table()->get('name'), 'admin/content/data'))));
-          }
-        }
-      }
-    }
   }
 }
