@@ -1,0 +1,353 @@
+body {
+  background-color: #ffffff;
+  color: #1d1a15;
+}
+#header-group-wrapper {
+
+}
+#sidebar-last .block {
+  background-color: #e4eca3;
+  padding: 20px 0 20px 0;
+}
+.block .views-field-title {
+  font-family: 'Arial', sans-serif;
+  font-size: 200%;
+}
+#main-content-inner .block .views-field-title {
+  font-size: 120%;
+}
+.block .views-field-created {
+  padding-bottom: 5px;
+  color: rgba(46, 87, 147, 1);
+}
+.block h2 {
+  color: rgba(46, 87, 147, 1);
+  font-weight: bold;
+}
+a {
+  color: rgba(46, 87, 147, 1);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.block ul, .block ol, div.item-list {
+  margin-left: 0;
+  padding:0;
+}
+.block li.leaf, 
+div.item-list ul li{
+  list-style: none;
+  list-style-image: none;
+}
+li.leaf li.leaf,
+li.expanded, 
+li.collapsed, 
+li.active-trail  {
+  list-style-position: inside;
+  list-style-type:none;
+  list-style-image: none;
+}
+div.item-list ul li,
+li.expanded a,
+li.collapsed a,
+li.active-trail a{
+/*   background: url(../images/bullet.png) 0 0 no-repeat; */
+  color: #1d1a15;
+  padding-left: 18px;
+  line-height: 90%;
+  font-weight: normal;
+}
+div.item-list ul li a,
+li.collapsed a {
+  color:#1d1a15;
+  font-weight: normal;
+}
+li.active-trail a {
+
+}
+li.expanded li a,
+li.collapsed li a,
+li.active-trail li a {
+  background: none;
+  padding-left: 18px;
+}
+li.leaf a,
+li.expanded a, 
+li.active-trail a,
+.contact-info a,
+div.item-list ul li a {
+  font-weight: normal;
+}
+div.item-list ul li {
+  margin-bottom: 20px;
+}
+li.leaf {
+/*   text-indent: 18px; */
+}
+li.leaf ul.menu li.leaf {
+/*   text-indent: 36px; */
+}
+li.expanded ul.menu,
+li.active-trail ul.menu {
+/* text-indent: 18px; */
+}
+.contact-info {
+  padding-bottom: 10px;
+}
+#main-wrapper {
+  padding-top: 0px;
+}
+#content-group h1, 
+#content-group h2, 
+#content-group h3, 
+#content-group h4, 
+#content-group h5, 
+#content-group h6 {
+  color: rgba(232, 118, 42, 1);
+}
+.terms a {
+  font-weight: normal;
+  padding-right: 20px;
+  color: #5f852e;
+}
+.terms {
+  padding-top: 20px;
+}
+ul li{
+  list-style-position: inside;
+}
+
+a:hover, a:active, a:focus {
+  text-decoration: none;
+}
+
+ul.pager li.pager-current {
+  background-color:none;
+  color:#666666;
+}
+ul.pager a, ul.pager li.pager-current {
+  border-color:#5f852e;
+}
+ul.pager a, ul.pager li.pager-current {
+  border-style:solid;
+  border-width:1px;
+  padding:3px 6px 2px;
+  text-decoration:none;
+}
+ul.pager li.pager-current {
+  background-color:transparent;
+  padding: 5px;
+}
+
+.view-display-id-page_1 .views-view-grid td { 
+  width: 200px;
+  overflow-y: hidden;
+  vertical-align: top;
+}
+
+.view .widget {
+  background: none;
+}
+.font-size-16 #site-name,
+.font-size-16 h1,
+.font-size-16 h2{
+  font-size: 150%;
+}
+.font-size-16 h3,
+.font-size-16 h4,
+.font-size-16 h5,
+.font-size-16 h6
+{
+  font-size: 120%;
+}
+.font-size-16 #primary-menu a {
+  font-size: 120%;
+}
+.primary-menu ul li a, .primary-menu ul li .nolink {
+  padding: 0 30px 0 0;
+}
+li, li.leaf, ul.menu li, .item-list ul li {
+  line-height:100%;
+}
+#footer-message {
+font-size: 80%;
+}
+.block {
+  margin-bottom:15px;
+}
+
+/* Slideshow presentation customizations */
+.views-slideshow-controls-bottom {
+  
+}
+.views_slideshow_controls {
+  float: left;
+  margin-right: 10px;
+}
+.views_slideshow_singleframe_pager .pager-item,
+.views_slideshow_controls a {
+  width: 40px;
+  height: 40px;
+  padding: 8px 10px 8px 10px;
+  margin-right: 10px;
+  color: #ffffff;
+  font-weight: normal;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+.attachment .view-glossary-title-slideshow span.views-summary {
+  display: block;
+}
+.attachment .view-glossary-title-slideshow span.views-summary a {
+  width: 20px;
+  height: 20px;
+  padding: 6px 6px;
+  margin: 0 2px 30px 0;
+  color: #ffffff;
+  font-weight: normal;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 16px;
+  display: block;
+  float: left;
+}
+.attachment .view-glossary-title-slideshow span.views-summary a.active {
+  background: rgba(46, 87, 147, 1);
+}
+.view-content {
+  display: block;
+  clear: both;
+}
+.attachment .view-glossary-title-slideshow span.views-summary a,
+.views_slideshow_singleframe_pager .pager-item {
+  background: #000000;
+}
+
+.attachment .view-glossary-title-slideshow {
+  margin-bottom: 0px;
+}
+
+#header-site-info.block {
+  margin-bottom: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+#header-site-info-inner {
+  margin: 0;
+}
+#site-name {
+  line-height: 50%;
+}
+#header-site-info.block a {
+  font-family: Arial, sans-serif;
+  color: #ffffff;
+  font-weight: normal;
+  font-size: 10px;
+  padding: 10px;
+  background: rgba(46, 87, 147, 1);
+  display: block;
+}
+
+.views_slideshow_singleframe_pager .pager-item a {
+ color: #ffffff;
+}
+
+.views_slideshow_singleframe_pager .pager-item.activeSlide {
+  background: rgba(46, 87, 147, 1);
+}
+.views-slideshow-controls-bottom a {
+
+}
+.views_slideshow_singleframe_pager {
+  height: 60px;
+}
+
+a.views_slideshow_next {
+  background: url(../images/ff.jpg) #000000 no-repeat 0 0;
+}
+a.views_slideshow_previous {
+ background: url(../images/rewind.jpg) #000000 no-repeat 0 0;
+}
+a.views_slideshow_play {
+ background: url(../images/play.jpg) #000000 no-repeat 0 0;
+}
+a.views_slideshow_pause {
+ background: url(../images/pause.jpg) #000000 no-repeat 0 0;
+}
+
+.view-content .submitted {
+  display: none;
+}
+.view-content .views-field-field-media-value,
+.view-content .views-field-field-image-fid {
+  float: left;
+  margin-right: 30px;
+}
+.view-content .views-row {
+  display: block;
+  clear: both;
+}
+.view-content .views-field-field-teaser-value {
+  width: 75%;
+  font-size: 200%;
+  line-height: 150%;
+}
+.view-content .views-field-title a {
+  font-size: 300%;
+  line-height: 100%;
+  font-family: Baskerville,Georgia,Palatino,"Palatino Linotype","Book Antiqua","URW Palladio L",serif;
+    
+}
+.view-content thead,
+.view-content thead th,
+.view-content tbody,
+.view-content tr.even,
+.view-content tr.even td,
+.view-content tr.odd,
+.view-content tr.odd td{
+  border: none;
+}
+.view-content table {
+  border-top: 1px solid #dddddd;
+  border-bottom: 1px solid #dddddd;
+  font-family: Arial, sans-serif;
+  font-weight: normal;
+  font-size: 90%;
+}
+tr.even, tr.even td {
+  background-color: rgba(46, 87, 147, 0.1);
+  
+}
+/* administrative hover links */
+
+div.view div.views-admin-links {
+  font-size: xx-small;
+  margin-right: 1em;
+  margin-top: 0em;
+/*  width: 95%; */
+}
+
+.block div.view div.views-admin-links {
+  margin-top: 0;
+}
+
+div.view div.views-admin-links ul {
+  padding-left: 0;
+}
+
+div.view div.views-admin-links li {
+  padding-bottom: 2px;
+  z-index: 201;
+}
+
+/** For IE we add the class via js; for other browsers we rely on :hover **/
+div.view div.views-hide-hover,
+div.view:hover div.views-hide {
+  display: block;
+  position: relative;
+  z-index: 200;
+}
+div.view div.views-hide {
+  display: block;
+}
