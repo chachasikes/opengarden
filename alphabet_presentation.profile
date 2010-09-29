@@ -22,8 +22,9 @@ function alphabet_presentation_profile_modules() {
   // Drupal core
   $modules = array(
     'features',
+    'content',
+    'views',
     'alphabet_presentation',
-    'alphabet_presentation_cck',
   );
   return $modules;
 }
@@ -54,7 +55,7 @@ function alphabet_presentation_profile_tasks(&$task, $url) {
   drupal_flush_all_caches();
   module_rebuild_cache();
   menu_rebuild();
-  variable_set('site_frontpage', 'abd-slides');
+  variable_set('site_frontpage', 'abc-slides');
   drupal_flush_all_caches();
 
   // Enable default theme.
