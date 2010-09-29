@@ -265,13 +265,17 @@ font-size: 80%;
 .views_slideshow_singleframe_pager .pager-item.activeSlide {
   background: rgba(46, 87, 147, 1);
 }
-.views-slideshow-controls-bottom a {
-
+.views-slideshow-controls-bottom {
+  padding-top: 20px;
 }
 .views_slideshow_singleframe_pager {
   height: 60px;
 }
 
+.view-content .views-field-field-image-fid-1 .field-item {
+  display: inline;
+  margin-right: 10px;
+}
 a.views_slideshow_next {
   background: url(../images/ff.jpg) #000000 no-repeat 0 0;
 }
@@ -301,12 +305,16 @@ a.views_slideshow_pause {
   width: 75%;
   font-size: 200%;
   line-height: 150%;
+  display: inline;
 }
 .view-content .views-field-title a {
   font-size: 300%;
   line-height: 100%;
-  font-family: Baskerville,Georgia,Palatino,"Palatino Linotype","Book Antiqua","URW Palladio L",serif;
-    
+  font-family: Baskerville,Georgia,Palatino,"Palatino Linotype","Book Antiqua","URW Palladio L",serif;   
+}
+.views-field-field-teaser-value a {
+  font-weight: normal;
+  font-size: 90%;
 }
 .view-content thead,
 .view-content thead th,
