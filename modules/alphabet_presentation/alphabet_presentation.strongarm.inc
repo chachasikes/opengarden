@@ -77,7 +77,6 @@ function alphabet_presentation_strongarm() {
     'revision_information' => '3',
     'author' => '2',
     'options' => '4',
-    'comment_settings' => '5',
     'menu' => '1',
   );
 

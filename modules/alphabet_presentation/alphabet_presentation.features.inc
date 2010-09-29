@@ -33,24 +33,65 @@ function alphabet_presentation_imagecache_default_presets() {
       'presetname' => 'thumbnail',
       'actions' => array(
         '0' => array(
-          'weight' => '0',
+          'weight' => '-10',
           'module' => 'imagecache',
-          'action' => 'imagecache_scale',
+          'action' => 'imagecache_scale_and_crop',
           'data' => array(
-            'width' => '500',
-            'height' => '100%',
-            'upscale' => 0,
+            'width' => '360',
+            'height' => '240',
           ),
         ),
         '1' => array(
+          'weight' => '-9',
+          'module' => 'imagecache_canvasactions',
+          'action' => 'canvasactions_roundedcorners',
+          'data' => array(
+            'radius' => '20',
+            'independent_corners_set' => array(
+              'independent_corners' => 0,
+              'radii' => array(
+                'tl' => '',
+                'tr' => '',
+                'bl' => '',
+                'br' => '',
+              ),
+            ),
+          ),
+        ),
+        '2' => array(
+          'weight' => '-8',
+          'module' => 'imagecache',
+          'action' => 'imagecache_rotate',
+          'data' => array(
+            'degrees' => '-5',
+            'random' => 0,
+            'bgcolor' => '#ffffff',
+          ),
+        ),
+        '3' => array(
+          'weight' => '0',
+          'module' => 'imagecache_canvasactions',
+          'action' => 'canvasactions_canvas2file',
+          'data' => array(
+            'xpos' => 0,
+            'ypos' => 0,
+            'alpha' => '100',
+            'path' => 'profiles/alphabet_presentation/themes/sitetheme/images/image_underlay.gif',
+            'dimensions' => 'original',
+          ),
+        ),
+      ),
+    ),
+    'thumbnail_small' => array(
+      'presetname' => 'thumbnail_small',
+      'actions' => array(
+        '0' => array(
           'weight' => '0',
           'module' => 'imagecache',
-          'action' => 'imagecache_crop',
+          'action' => 'imagecache_scale_and_crop',
           'data' => array(
-            'width' => '320',
-            'height' => '240',
-            'xoffset' => 'center',
-            'yoffset' => 'center',
+            'width' => '100',
+            'height' => '100',
           ),
         ),
       ),

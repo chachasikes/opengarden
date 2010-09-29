@@ -129,7 +129,7 @@ function alphabet_presentation_content_default_fields() {
     'widget_active' => '1',
     'type' => 'filefield',
     'required' => '0',
-    'multiple' => '0',
+    'multiple' => '6',
     'module' => 'filefield',
     'active' => '1',
     'list_field' => '0',
