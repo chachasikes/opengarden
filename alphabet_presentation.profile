@@ -24,7 +24,9 @@ function alphabet_presentation_profile_modules() {
     'features',
     'content',
     'views',
+    'views_glossary_abc_slideshow',
     'alphabet_presentation',
+
   );
   return $modules;
 }

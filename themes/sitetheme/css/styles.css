@@ -196,7 +196,11 @@ font-size: 80%;
   font-size: 12px;
 }
 .attachment .view-glossary-title-slideshow span.views-summary {
-  display: block;
+  display: inline-block;
+}
+.attachment .view-glossary-title-slideshow {
+  clear: both;
+  float: none;
 }
 .attachment .view-glossary-title-slideshow span.views-summary a {
   width: 20px;
@@ -222,7 +226,12 @@ font-size: 80%;
 .views_slideshow_singleframe_pager .pager-item {
   background: #000000;
 }
-
+.attachment .view-glossary-title-slideshow span.views-summary.linked a{
+  background: rgba(0, 0, 0, 1);
+}
+.attachment .view-glossary-title-slideshow span.views-summary.unlinked a{
+  background: rgba(46, 87, 147, 0.2);
+}
 .attachment .view-glossary-title-slideshow {
   margin-bottom: 0px;
 }
