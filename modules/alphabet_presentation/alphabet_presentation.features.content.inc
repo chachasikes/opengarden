@@ -35,7 +35,7 @@ function alphabet_presentation_content_default_fields() {
     'multiple' => '0',
     'module' => 'text',
     'active' => '1',
-    'text_processing' => '0',
+    'text_processing' => '1',
     'max_length' => '',
     'allowed_values' => '',
     'allowed_values_php' => '',
@@ -51,7 +51,7 @@ function alphabet_presentation_content_default_fields() {
       'default_value_php' => NULL,
       'label' => 'Content',
       'weight' => '-2',
-      'description' => '',
+      'description' => 'More in depth content, available by clicking to view the item.',
       'type' => 'text_textarea',
       'module' => 'text',
     ),
@@ -62,9 +62,10 @@ function alphabet_presentation_content_default_fields() {
     'field_name' => 'field_file',
     'type_name' => 'item',
     'display_settings' => array(
+      'weight' => 0,
+      'parent' => '',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -162,9 +163,10 @@ function alphabet_presentation_content_default_fields() {
     'field_name' => 'field_media',
     'type_name' => 'item',
     'display_settings' => array(
+      'weight' => '-1',
+      'parent' => '',
       'label' => array(
         'format' => 'above',
-        'exclude' => 0,
       ),
       'teaser' => array(
         'format' => 'default',
@@ -222,8 +224,8 @@ function alphabet_presentation_content_default_fields() {
         'exclude' => 0,
       ),
       'full' => array(
-        'format' => 'hidden',
-        'exclude' => 1,
+        'format' => 'default',
+        'exclude' => 0,
       ),
       '4' => array(
         'format' => 'default',
@@ -241,18 +243,19 @@ function alphabet_presentation_content_default_fields() {
     'allowed_values' => '',
     'allowed_values_php' => '',
     'widget' => array(
-      'rows' => '5',
+      'rows' => '3',
       'size' => 60,
       'default_value' => array(
         '0' => array(
           'value' => '',
+          'format' => '1',
           '_error_element' => 'default_value_widget][field_teaser][0][value',
         ),
       ),
       'default_value_php' => NULL,
-      'label' => 'Teaser',
+      'label' => 'Teaser ',
       'weight' => '-3',
-      'description' => '',
+      'description' => 'This should be short test, as would be appropriate for a slide.',
       'type' => 'text_textarea',
       'module' => 'text',
     ),
@@ -264,7 +267,7 @@ function alphabet_presentation_content_default_fields() {
   t('File');
   t('Image');
   t('Media');
-  t('Teaser');
+  t('Teaser ');
 
   return $fields;
 }
