@@ -10,7 +10,6 @@
  * Implementation of hook_views_api().
  */
 function views_selector_views_api() {
-
 /**
  * Development Note:
  * This is where we tell Drupal that our module wants to connect to views.
@@ -21,4 +20,24 @@ function views_selector_views_api() {
     'api' => 2,
     'path' => drupal_get_path('module', 'views_selector'),
   );
+}
+
+
+function views_selector_theme() {
+  return array(
+    'views_selector_style' => array(
+      'arguments' => array(
+      ),
+    ),
+  );
+}
+
+/**
+ * Display a view as a cloud.
+ */
+function theme_views_selector_style(&$vars) {
+//  drupal_add_css(drupal_get_path('module', 'views_cloud') . '/views_cloud.css');dpm("test");
+echo "test";
+dpm($vars);
+return "test";
 }
