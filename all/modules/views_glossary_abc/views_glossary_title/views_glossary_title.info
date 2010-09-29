@@ -1,5 +1,0 @@
-; $Id$
-name = "Views Glossary: Title"
-description = "Provide trimmed node title option for Views arguments & fields."
-package = "Views"
-core = 6.x

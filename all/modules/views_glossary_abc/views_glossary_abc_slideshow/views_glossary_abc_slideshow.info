@@ -1,7 +1,0 @@
-; $Id$
-name = "Views Glossary: Alphabetical Images with Slideshow"
-description = "Provide \"Alphabet Icon\" image sets for Views glossary summaries."
-package = "Views"
-core = 6.x
-dependencies[] = views_glossary_title
-dependencies[] = views_slideshow_singleframe
