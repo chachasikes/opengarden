@@ -176,6 +176,10 @@ li, li.leaf, ul.menu li, .item-list ul li {
   margin-bottom:15px;
 }
 
+
+
+
+
 /* Slideshow presentation customizations */
 .views-slideshow-controls-bottom {
   
@@ -196,7 +200,7 @@ li, li.leaf, ul.menu li, .item-list ul li {
   font-size: 12px;
 }
 .attachment .view-glossary-title-slideshow span.views-summary {
-  display: inline-block;
+/*   display: inline-block; */
 }
 .attachment .view-glossary-title-slideshow {
   clear: both;
@@ -218,6 +222,20 @@ li, li.leaf, ul.menu li, .item-list ul li {
 .attachment .view-glossary-title-slideshow span.views-summary a.active {
   background: rgba(46, 87, 147, 1);
 }
+
+
+
+.tiny-count {
+  color:#FFFFFF;
+  display: inline-block;
+  font-family:Arial,sans-serif;
+  font-size:7px;
+  padding:0 0 0 26px;
+  position:absolute;
+  top:38px;
+}
+
+
 .view-content {
   display: block;
   clear: both;
@@ -344,9 +362,6 @@ a.views_slideshow_pause {
   line-height: 100%;
   font-family: Baskerville,Georgia,Palatino,"Palatino Linotype","Book Antiqua","URW Palladio L",serif;
 }
-
-
-
 
 
 /* Slide custom styles */

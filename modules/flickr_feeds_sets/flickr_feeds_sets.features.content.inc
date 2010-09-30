@@ -84,7 +84,7 @@ function flickr_feeds_sets_content_default_fields() {
     'widget_active' => '1',
     'type' => 'filefield',
     'required' => '0',
-    'multiple' => '0',
+    'multiple' => '1',
     'module' => 'filefield',
     'active' => '1',
     'list_field' => '0',
@@ -106,7 +106,7 @@ function flickr_feeds_sets_content_default_fields() {
       'default_image' => NULL,
       'use_default_image' => 0,
       'label' => 'Image',
-      'weight' => '2',
+      'weight' => '-2',
       'description' => '',
       'type' => 'imagefield_widget',
       'module' => 'imagefield',
@@ -208,12 +208,120 @@ function flickr_feeds_sets_content_default_fields() {
       'size' => 60,
       'default_value' => array(
         '0' => array(
-          'nid' => '',
+          'nid' => NULL,
+          '_error_element' => 'default_value_widget][field_images][0][nid][nid',
         ),
       ),
       'default_value_php' => NULL,
       'label' => 'Images',
       'weight' => '-4',
+      'description' => '',
+      'type' => 'nodereference_select',
+      'module' => 'nodereference',
+    ),
+  );
+
+  // Exported field: field_teaser
+  $fields['flickr_set-field_teaser'] = array(
+    'field_name' => 'field_teaser',
+    'type_name' => 'flickr_set',
+    'display_settings' => array(
+      'weight' => '-3',
+      'parent' => '',
+      'label' => array(
+        'format' => 'hidden',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '1',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          'format' => '1',
+          '_error_element' => 'default_value_widget][field_teaser][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Teaser ',
+      'weight' => '2',
+      'description' => 'This should be short test, as would be appropriate for a slide.',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_images
+  $fields['item-field_images'] = array(
+    'field_name' => 'field_images',
+    'type_name' => 'item',
+    'display_settings' => array(
+      'weight' => '-1',
+      'parent' => '',
+      'label' => array(
+        'format' => 'hidden',
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 1,
+      ),
+      'full' => array(
+        'format' => 'teaser',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'nodereference',
+    'required' => '0',
+    'multiple' => '1',
+    'module' => 'nodereference',
+    'active' => '1',
+    'referenceable_types' => array(
+      'feed' => 0,
+      'feed_item' => 0,
+      'flickr_item' => 0,
+      'flickr_set' => 0,
+      'item' => 0,
+    ),
+    'advanced_view' => 'flickr_item_picker',
+    'advanced_view_args' => '',
+    'widget' => array(
+      'autocomplete_match' => 'contains',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'nid' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Images',
+      'weight' => '-1',
       'description' => '',
       'type' => 'nodereference_select',
       'module' => 'nodereference',

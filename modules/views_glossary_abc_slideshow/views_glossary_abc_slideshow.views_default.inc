@@ -364,6 +364,7 @@ function views_glossary_abc_slideshow_views_default_views() {
   $handler->override_option('header_format', '1');
   $handler->override_option('header_empty', 1);
   $handler->override_option('empty_format', '1');
+  $handler->override_option('use_ajax', TRUE);
   $handler->override_option('items_per_page', 0);
   $handler->override_option('use_pager', '1');
   $handler->override_option('distinct', 1);
@@ -819,7 +820,7 @@ function views_glossary_abc_slideshow_views_default_views() {
       'default_action' => 'summary asc',
       'style_plugin' => 'unformatted_summary',
       'style_options' => array(
-        'count' => 0,
+        'count' => 1,
         'override' => 0,
         'items_per_page' => '25',
         'inline' => 1,
@@ -943,6 +944,39 @@ function views_glossary_abc_slideshow_views_default_views() {
       'override' => array(
         'button' => 'Use default',
       ),
+    ),
+    'edit_node' => array(
+      'label' => '',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'target' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'html' => 0,
+        'strip_tags' => 0,
+      ),
+      'empty' => '',
+      'hide_empty' => 0,
+      'empty_zero' => 0,
+      'text' => '',
+      'exclude' => 0,
+      'id' => 'edit_node',
+      'table' => 'node',
+      'field' => 'edit_node',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
     ),
   ));
   $handler->override_option('arguments', array(
@@ -1090,6 +1124,7 @@ function views_glossary_abc_slideshow_views_default_views() {
   ));
   $handler->override_option('css_class', 'index');
   $handler->override_option('header', '<a href="/abc-index">Index</a> | <a href="/">Slides</a>');
+  $handler->override_option('use_ajax', FALSE);
   $handler->override_option('use_pager', '0');
   $handler->override_option('path', 'abc-index/%');
   $handler->override_option('menu', array(

@@ -21,10 +21,11 @@ function alphabet_presentation_imagecache_default_presets() {
         '0' => array(
           'weight' => '0',
           'module' => 'imagecache',
-          'action' => 'imagecache_scale_and_crop',
+          'action' => 'imagecache_scale',
           'data' => array(
-            'width' => '1400',
+            'width' => '800',
             'height' => '100%',
+            'upscale' => 0,
           ),
         ),
       ),
@@ -35,10 +36,11 @@ function alphabet_presentation_imagecache_default_presets() {
         '0' => array(
           'weight' => '-10',
           'module' => 'imagecache',
-          'action' => 'imagecache_scale_and_crop',
+          'action' => 'imagecache_scale',
           'data' => array(
             'width' => '360',
-            'height' => '240',
+            'height' => '',
+            'upscale' => 0,
           ),
         ),
         '1' => array(
@@ -69,7 +71,7 @@ function alphabet_presentation_imagecache_default_presets() {
           ),
         ),
         '3' => array(
-          'weight' => '0',
+          'weight' => '-7',
           'module' => 'imagecache_canvasactions',
           'action' => 'canvasactions_canvas2file',
           'data' => array(
@@ -78,6 +80,20 @@ function alphabet_presentation_imagecache_default_presets() {
             'alpha' => '100',
             'path' => 'profiles/alphabet_presentation/themes/sitetheme/images/image_underlay.gif',
             'dimensions' => 'original',
+          ),
+        ),
+      ),
+    ),
+    'thumbnail_medium' => array(
+      'presetname' => 'thumbnail_medium',
+      'actions' => array(
+        '0' => array(
+          'weight' => '0',
+          'module' => 'imagecache',
+          'action' => 'imagecache_scale_and_crop',
+          'data' => array(
+            'width' => '300',
+            'height' => '300',
           ),
         ),
       ),

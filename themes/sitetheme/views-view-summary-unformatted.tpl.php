@@ -9,20 +9,24 @@
     // Loop through the alphabet, creating links that work with views active classes.
     $i = 0;
     foreach($letters as $letter) {
-      $class = !empty($classes[$i]) ? ' class="'. $classes[$i] .'"' : '';
-      // If value exists, create a span with a link.
+      $class = !empty($classes[$i]) ? ' class="'. $classes[$i] .' glossary-button"' : '"glossary-button"';
+      // $style = 'height=' . ($view->result[$i]->count * 5) . 'px; width=20px'; 
+      // $chart_style = 'style="width:20px; height:20px;background-color:white"';
+      // $count = '<span class="tiny-count"' . $chart_style . '>' . $view->result[$i]->count . '</span>';
+      $count = '';
 
+      // If value exists, create a span with a link.
       if(in_array($letter, array_values($existing_letters))) {
         print '<span class="views-summary views-summary-unformatted">';
-        print '<a href="' . $view->result[$i]->url . '" ' . $class . '>' . $view->result[$i]->link . '</a>';
+        print '<a href="' . $view->result[$i]->url . '" ' . $class . '>' . $view->result[$i]->link . '</a>' . $count;
         print '</span>';
         $i++;
       }
       else {
         print '<span class="views-summary views-summary-unformatted unlinked">';
-        print '<a href="' . $view->display["page"]->display_options["path"] . '/' . strtolower($letter)  . '" ' . $class . '">' . $letter . '</a>';
-        print '</span>';      }
-
+        print '<a href="' . $view->display["page"]->display_options["path"] . '/' . strtolower($letter)  . '" ' . $class . '">' . $letter . '</a>' . $count;
+        print '</span>';      
+      }
     }
 ?>
 <?php else :?>

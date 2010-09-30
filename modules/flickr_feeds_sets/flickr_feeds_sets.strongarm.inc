@@ -11,10 +11,11 @@ function flickr_feeds_sets_strongarm() {
   $strongarm->name = 'content_extra_weights_flickr_item';
   $strongarm->value = array(
     'title' => '-5',
-    'revision_information' => '0',
-    'author' => '-1',
-    'options' => '1',
-    'menu' => '-2',
+    'revision_information' => '2',
+    'author' => '1',
+    'options' => '3',
+    'menu' => '0',
+    'taxonomy' => '-1',
   );
 
   $export['content_extra_weights_flickr_item'] = $strongarm;
@@ -36,6 +37,8 @@ function flickr_feeds_sets_strongarm() {
   $strongarm->api_version = 1;
   $strongarm->name = 'default_feeds_importer';
   $strongarm->value = array(
+    'flickr_set' => FALSE,
+    'flickr_feed_tags_lists_' => TRUE,
     'feed' => FALSE,
     'node' => TRUE,
     'opml' => TRUE,

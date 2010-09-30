@@ -8,6 +8,25 @@ function alphabet_presentation_strongarm() {
   $strongarm = new stdClass;
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
+  $strongarm->name = 'admin_toolbar';
+  $strongarm->value = array(
+    'layout' => 'vertical',
+    'position' => 'se',
+    'behavior' => 'df',
+    'blocks' => array(
+      'admin-create' => -1,
+      'admin-theme' => 1,
+      'admin-account' => -1,
+      'admin-menu' => 1,
+      'admin-devel' => -1,
+      'markdown-help' => -1,
+    ),
+  );
+
+  $export['admin_toolbar'] = $strongarm;
+  $strongarm = new stdClass;
+  $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
+  $strongarm->api_version = 1;
   $strongarm->name = 'comment_anonymous_item';
   $strongarm->value = 0;
 
@@ -74,10 +93,11 @@ function alphabet_presentation_strongarm() {
   $strongarm->name = 'content_extra_weights_item';
   $strongarm->value = array(
     'title' => '-5',
-    'revision_information' => '3',
-    'author' => '2',
-    'options' => '4',
-    'menu' => '1',
+    'revision_information' => '5',
+    'author' => '4',
+    'options' => '6',
+    'menu' => '3',
+    'taxonomy' => '2',
   );
 
   $export['content_extra_weights_item'] = $strongarm;
