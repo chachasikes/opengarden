@@ -20,6 +20,12 @@ body {
   padding-bottom: 5px;
   color: rgba(46, 87, 147, 1);
 }
+p {
+  margin: 0.2em 0;
+}
+.node table {
+  margin: 20px 0 20px 0;
+}
 .block h2 {
   color: rgba(46, 87, 147, 1);
   font-weight: bold;
@@ -151,7 +157,10 @@ ul.pager li.pager-current {
 .font-size-16 #site-name,
 .font-size-16 h1,
 .font-size-16 h2{
-  font-size: 150%;
+  font-size: 200%;
+}
+.font-size-16 {
+  font-size:150%;
 }
 .font-size-16 h3,
 .font-size-16 h4,
@@ -177,9 +186,15 @@ li, li.leaf, ul.menu li, .item-list ul li {
 }
 
 
-
-
-
+.node li {
+  padding-bottom: 10px;
+}
+.content-inner ul, .content-inner ol {
+  margin-bottom: 0px;
+}
+h1 {
+  padding-top: 20px;
+}
 /* Slideshow presentation customizations */
 .views-slideshow-controls-bottom {
   
@@ -223,6 +238,9 @@ li, li.leaf, ul.menu li, .item-list ul li {
   background: rgba(46, 87, 147, 1);
 }
 
+.submitted {
+  display: none;
+}
 
 
 .tiny-count {
@@ -276,6 +294,32 @@ li, li.leaf, ul.menu li, .item-list ul li {
   display: block;
 }
 
+#block-menu-menu-creator .inner{
+  margin: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 150px;
+  padding: 10px;
+  background: rgba(46, 87, 147, 1);
+  z-index: 10;
+}
+#block-menu-menu-creator .inner a{
+  font-family: Arial, sans-serif;
+  color: #ffffff;
+  font-weight: normal;
+  font-size: 10px;
+  padding: 5px;
+  line-height: 12px;
+  background: rgba(46, 87, 147, 1);
+  display: block;
+}
+#block-menu-menu-creator .inner a:hover,
+#block-menu-menu-creator .inner a:active {
+  color: #cccccc;
+}
+
+
 .views_slideshow_singleframe_pager .pager-item a {
  color: #ffffff;
 }
@@ -305,7 +349,12 @@ li, li.leaf, ul.menu li, .item-list ul li {
 .view-content .views-field-field-images-nid .field-item .node,
 .view-content .views-field-field-images-nid .field-item .node .content,
 .view-content .views-field-field-images-nid .field-item .node .content .field-item {
-  width: 120px;
+/*   width: 120px; */
+}
+.view-content .views-field-field-image-fid-1,
+.view-content .views-field-field-images-nid {
+  width: 75%;
+  display: inline;
 }
 .view-content .views-field-field-images-nid h2.title,
 .view-content .views-field-field-images-nid .field-item h2.title {
@@ -336,19 +385,47 @@ a.views_slideshow_pause {
   display: block;
   clear: both;
 }
+blockquote,
 .view-content .views-field-field-teaser-value blockquote {
-  width: 60%;
-  font-size: 75%;
   line-height: 130%; 
   display: inline-block;
   background-color: rgba(46, 87, 147, 0.1);
-  padding: 15px 15px 0px 30px;
+  padding: 15px 15px 15px 30px;
+}
+blockquote a {
+  font-size: 90%;
+}
+em {
+  letter-spacing: 0.05em;
+  font-variant: small-caps;
+  font-style: normal;
+}
+strike, strike a {
+  color: rgba(46, 87, 147, 0.7);
+  text-decoration: none;
+  font-weight: normal;
+}
+.node table {
+  width: 80%;
+  font-size: 80%;
+  line-height: 100%;
+}
+
+.view-content .views-field-field-teaser-value blockquote {
+  bottom:-20px;
+  font-size:60%;
+  line-height:130%;
+  padding:30px 15px 15px 30px;
+  position:absolute;
+  left: 0px;
+  width:280px;
+  z-index: 9;
 }
 
 .view-content .views-field-field-teaser-value {
-  width: 80%;
-  font-size: 180%;
-  line-height: 150%;
+  width: 70%;
+  font-size: 120%;
+  line-height: 140%;
   display: inline;
 }
 .view-content .field-content li {
@@ -358,7 +435,7 @@ a.views_slideshow_pause {
   list-style-image: url(../images/bullet.gif);
 }
 .view-glossary-title-slideshow .view-content .views-field-title a {
-  font-size: 300%;
+  font-size: 250%;
   line-height: 100%;
   font-family: Baskerville,Georgia,Palatino,"Palatino Linotype","Book Antiqua","URW Palladio L",serif;
 }
