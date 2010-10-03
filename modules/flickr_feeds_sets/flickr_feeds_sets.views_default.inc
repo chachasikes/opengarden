@@ -216,7 +216,6 @@ function flickr_feeds_sets_views_default_views() {
       'operator' => 'in',
       'value' => array(
         'flickr_item' => 'flickr_item',
-        'flickr_set' => 'flickr_set',
       ),
       'group' => '0',
       'exposed' => FALSE,
@@ -231,6 +230,20 @@ function flickr_feeds_sets_views_default_views() {
       'override' => array(
         'button' => 'Override',
       ),
+    ),
+    'status' => array(
+      'operator' => '=',
+      'value' => '1',
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+      'relationship' => 'none',
     ),
   ));
   $handler->override_option('access', array(
