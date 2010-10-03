@@ -26,6 +26,7 @@ function alphabet_presentation_profile_modules() {
     'views',
     'views_glossary_abc_slideshow',
     'alphabet_presentation',
+    'flickr_feeds_sets',
 
   );
   return $modules;
@@ -57,7 +58,7 @@ function alphabet_presentation_profile_tasks(&$task, $url) {
   drupal_flush_all_caches();
   module_rebuild_cache();
   menu_rebuild();
-  variable_set('site_frontpage', 'abc-slides');
+  variable_set('site_frontpage', 'slides');
   drupal_flush_all_caches();
 
   // Enable default theme.
