@@ -207,7 +207,7 @@ function views_glossary_abc_slideshow_views_default_views() {
       'format' => 'thumbnail_small_linked',
       'multiple' => array(
         'group' => 1,
-        'multiple_number' => '5',
+        'multiple_number' => '',
         'multiple_from' => '1',
         'multiple_reversed' => 0,
       ),
@@ -351,6 +351,23 @@ function views_glossary_abc_slideshow_views_default_views() {
       'override' => array(
         'button' => 'Override',
       ),
+    ),
+    'status' => array(
+      'operator' => '=',
+      'value' => '1',
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+      'override' => array(
+        'button' => 'Override',
+      ),
+      'relationship' => 'none',
     ),
   ));
   $handler->override_option('access', array(
@@ -557,7 +574,7 @@ function views_glossary_abc_slideshow_views_default_views() {
         'suffix' => '',
         'target' => '',
         'help' => '',
-        'trim' => 1,
+        'trim' => 0,
         'max_length' => '500',
         'word_boundary' => 1,
         'ellipsis' => 1,
@@ -613,7 +630,7 @@ function views_glossary_abc_slideshow_views_default_views() {
       'format' => 'imagefield__lightbox2__thumbnail_small__full',
       'multiple' => array(
         'group' => 1,
-        'multiple_number' => '5',
+        'multiple_number' => '',
         'multiple_from' => '1',
         'multiple_reversed' => 0,
       ),
@@ -763,7 +780,7 @@ function views_glossary_abc_slideshow_views_default_views() {
     'separator' => '',
     'hide_empty' => 0,
   ));
-  $handler->override_option('path', 'abc-slides');
+  $handler->override_option('path', 'slides');
   $handler->override_option('menu', array(
     'type' => 'none',
     'title' => 'Glossary',
@@ -1027,7 +1044,7 @@ function views_glossary_abc_slideshow_views_default_views() {
     ),
   ));
   $handler->override_option('css_class', 'index-list');
-  $handler->override_option('footer', '<a href="/abc-index">Index</a>');
+  $handler->override_option('footer', '<a href="/index">Index</a> | <a href="/start">Start</a>');
   $handler->override_option('footer_format', '1');
   $handler->override_option('footer_empty', 0);
   $handler->override_option('style_plugin', 'table');
@@ -1123,10 +1140,10 @@ function views_glossary_abc_slideshow_views_default_views() {
     ),
   ));
   $handler->override_option('css_class', 'index');
-  $handler->override_option('header', '<a href="/abc-index">Index</a> | <a href="/">Slides</a>');
+  $handler->override_option('header', '<a href="/index">Index</a> | <a href="/">Slides</a>');
   $handler->override_option('use_ajax', FALSE);
   $handler->override_option('use_pager', '0');
-  $handler->override_option('path', 'abc-index/%');
+  $handler->override_option('path', 'index/%');
   $handler->override_option('menu', array(
     'type' => 'none',
     'title' => '',
@@ -1182,7 +1199,7 @@ function views_glossary_abc_slideshow_views_default_views() {
         'alter_text' => 0,
         'text' => '',
         'make_link' => 1,
-        'path' => 'abc-index/[nid]',
+        'path' => 'index/[nid]',
         'link_class' => '',
         'alt' => '',
         'prefix' => '',
@@ -1208,6 +1225,15 @@ function views_glossary_abc_slideshow_views_default_views() {
       'override' => array(
         'button' => 'Use default',
       ),
+    ),
+  ));
+  $handler->override_option('sorts', array(
+    'title_glossary' => array(
+      'order' => 'ASC',
+      'id' => 'title_glossary',
+      'table' => 'node',
+      'field' => 'title_glossary',
+      'relationship' => 'none',
     ),
   ));
   $handler->override_option('title', 'Index');
@@ -1250,7 +1276,7 @@ function views_glossary_abc_slideshow_views_default_views() {
     ),
     'default' => '-1',
   ));
-  $handler->override_option('path', 'abc-index');
+  $handler->override_option('path', 'index');
   $handler->override_option('menu', array(
     'type' => 'none',
     'title' => '',
