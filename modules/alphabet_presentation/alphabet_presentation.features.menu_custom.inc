@@ -10,11 +10,11 @@ function alphabet_presentation_menu_default_menu_custom() {
   $menus['menu-creator'] = array(
     'menu_name' => 'menu-creator',
     'title' => 'Content',
-    'description' => 'Add ',
+    'description' => 'ABC Presentation Menu',
   );
   // Translatables
   // Included for use with string extractors like potx.
-  t('Add ');
+  t('ABC Presentation Menu');
   t('Content');
 
 
